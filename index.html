@@ -506,30 +506,97 @@
         function handleFileUpload(event) {
             const files = Array.from(event.target.files);
             
+            if (files.length === 0) {
+                alert('Por favor selecciona al menos un archivo');
+                return;
+            }
+            
             files.forEach(file => {
+                // Validar tamaño del archivo (máximo 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`El archivo ${file.name} es demasiado grande. Máximo 5MB.`);
+                    return;
+                }
+                
+                // Validar tipo de archivo
+                const allowedTypes = ['text/plain', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                const allowedExtensions = ['.txt', '.pdf', '.docx', '.md'];
+                const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'));
+                
+                if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+                    alert(`Formato no soportado: ${file.name}. Use: TXT, PDF, DOCX, MD`);
+                    return;
+                }
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const content = e.target.result;
-                    const material = {
-                        id: Date.now() + Math.random(),
-                        name: file.name,
-                        type: file.type,
-                        size: file.size,
-                        content: content.substring(0, 5000), // Primeros 5000 caracteres
-                        wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
-                        uploadDate: new Date().toLocaleString(),
-                        subject: extractSubject(file.name)
-                    };
-                    
-                    appState.materials.push(material);
-                    appState.subjects.add(material.subject);
-                    
-                    updateMaterialsList();
-                    updateStats();
-                    updateSubjectSelect();
+                    try {
+                        let content = '';
+                        
+                        // Para archivos de texto plano
+                        if (file.type === 'text/plain' || fileExtension === '.txt' || fileExtension === '.md') {
+                            content = e.target.result;
+                        } else {
+                            // Para otros archivos, simular extracción de contenido
+                            content = `Contenido del archivo: ${file.name}
+                            
+Este es un archivo de tipo ${file.type || 'desconocido'}. 
+En una implementación real, aquí se extraería el texto del archivo usando librerías específicas.
+
+Ejemplo de contenido simulado para demostración:
+- Conceptos fundamentales de la materia
+- Definiciones importantes
+- Ejemplos prácticos
+- Ejercicios y problemas resueltos
+
+Para una funcionalidad completa, considera usar APIs como:
+- PDF.js para archivos PDF
+- Mammoth.js para archivos DOCX
+- O servicios backend para procesamiento de archivos`;
+                        }
+                        
+                        const material = {
+                            id: Date.now() + Math.random(),
+                            name: file.name,
+                            type: file.type || 'text/plain',
+                            size: file.size,
+                            content: content.substring(0, 5000), // Primeros 5000 caracteres
+                            wordCount: content.split(/\s+/).filter(word => word.length > 0).length,
+                            uploadDate: new Date().toLocaleString(),
+                            subject: extractSubject(file.name)
+                        };
+                        
+                        appState.materials.push(material);
+                        appState.subjects.add(material.subject);
+                        
+                        updateMaterialsList();
+                        updateStats();
+                        updateSubjectSelect();
+                        
+                        // Mostrar mensaje de éxito
+                        alert(`✅ Archivo "${file.name}" subido correctamente!`);
+                        
+                    } catch (error) {
+                        console.error('Error al procesar archivo:', error);
+                        alert(`❌ Error al procesar ${file.name}. Intenta con un archivo de texto plano.`);
+                    }
                 };
-                reader.readAsText(file);
+                
+                reader.onerror = function() {
+                    alert(`❌ Error al leer el archivo ${file.name}`);
+                };
+                
+                // Leer como texto para archivos de texto plano
+                if (file.type === 'text/plain' || fileExtension === '.txt' || fileExtension === '.md') {
+                    reader.readAsText(file, 'UTF-8');
+                } else {
+                    // Para otros archivos, simular la lectura
+                    reader.readAsArrayBuffer(file);
+                }
             });
+            
+            // Limpiar el input para permitir subir el mismo archivo otra vez
+            event.target.value = '';
         }
 
         function extractSubject(filename) {

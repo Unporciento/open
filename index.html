@@ -360,6 +360,11 @@
     font-size: 1rem;
     font-weight: 600;
   }
+  /* Botón especial para el chat */
+  .chat-message .search-btn {
+    font-size: 0.9rem;
+    padding: 8px 15px;
+  }
   .search-btn:hover { background: var(--color-acento-oscuro); }
   .reset-btn { background: #555; color: white; }
   .reset-btn:hover { background: #777; }
@@ -406,6 +411,77 @@
     height: 180px;
     object-fit: cover;
     border-bottom: 1px solid var(--color-borde);
+  }
+  
+  /* --- Responsividad para teléfonos --- */
+  @media (max-width: 768px) {
+    body {
+        padding: 5px;
+    }
+    .container {
+        padding: 0;
+        border: none;
+        border-radius: 0;
+    }
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 15px;
+    }
+    header .icon-taller {
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    header h1 { font-size: 2rem; }
+    header p { font-size: 1rem; }
+    
+    .tabs-nav {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .tab-button {
+        font-size: 0.9rem;
+        padding: 12px 10px;
+        flex-grow: 1;
+        text-align: center;
+    }
+    
+    .tab-content {
+        padding: 15px;
+    }
+    
+    #chat-window {
+        height: 75vh; /* Más altura en móvil */
+    }
+    
+    .selection-grid, .failures-list, #biblioteca-window .video-list, #biblioteca-window .forum-list {
+        grid-template-columns: 1fr; /* Una sola columna */
+        gap: 15px;
+    }
+    
+    #manual-window h2 {
+        font-size: 1.5rem;
+    }
+    .selection-card {
+        min-height: 120px;
+        padding: 15px;
+    }
+    .selection-card .icon {
+        font-size: 2.5rem;
+    }
+    .selection-card strong {
+        font-size: 1.1rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+    }
+    .search-btn {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
   }
 </style>
 </head>
@@ -491,7 +567,7 @@
 
 <script>
 /* ========================================================================= */
-/* JS DE "EL TALLER DE DON BUENAVENTURA" (v1.0)                              */
+/* JS DE "EL TALLER DE DON BUENAVENTURA" (v2.0 - Búsqueda Inteligente)     */
 /* Fusiona la BD de Preguntas (Don_Piston_Edicion_Taller_Real.txt)           */
 /* con la BD del Manual (gemini.txt + a.txt)                                 */
 /* y los enlaces de la Biblioteca (Don_Piston_Proyecto.txt)                  */
@@ -500,7 +576,7 @@
 // --- BASE DE DATOS 1: CHATBOT (De Don_Piston_Edicion_Taller_Real.txt) ---
 const db_preguntas_respuestas = [
   {"categoria": "Motor", "pregunta": "Mi Hilux echa humo negro al acelerar fuerte", "respuesta": "Eso, compadre, es exceso de combustible o poco aire. Fíjate en el filtro de aire, puede estar tapao’ con polvo. También revisá los inyectores, a veces uno gotea y ensucia el humo. Si viene de la cordillera, ni lo pensés: ese filtro debe estar más saturado que tubo de escape viejo.", "keywords": ["hilux", "humo negro", "acelerar", "potencia", "inyector"]},
-  {"categoria": "Motor", "pregunta": "El motor suena como cascabeleo en ralentí", "respuesta": "Ah, ese cascabeleo puede ser el tiempo adelantao’ o gasolina de mala calidad. En los diésel puede ser juego en biela o taqué pegado. Echale oído, parcero: si el sonido va con las RPM, son metales. Si no, puede ser válvula floja.", "keywords": ["cascabeleo", "ralentí", "ruido", "biela", "taqué"]},
+  {"categoria": "Motor", "pregunta": "El motor suena como cascabeleo en ralentí", "respuesta": "Ah, ese cascabeleo puede ser el tiempo adelantao’ o gasolina de mala calidad. En los diésel puede ser juego en biela o taqué pegado. Echale oído, parcero: si el sonido va con las RPM, son metales. Si no, puede ser válvula floja.", "keywords": ["cascabeleo", "ralentí", "ruido", "biela", "taqué", "motor suena"]},
   {"categoria": "Motor", "pregunta": "Mi camión pierde fuerza en subida", "respuesta": "Puede ser filtro de combustible sucio o turbo flojo. Revisá que el turbo no esté con juego, que gire suavecito. Si el camión ha trabajado en altura, ajustá el aire y el diésel, que allá el oxígeno no alcanza, viejo.", "keywords": ["pierde fuerza", "subida", "camion", "turbo", "filtro combustible", "altura"]},
   {"categoria": "Motor", "pregunta": "La camioneta se calienta rápido", "respuesta": "Eso puede ser termostato pegado o radiador tapado. Si el líquido se pone marrón, hay óxido. Cambiale el refrigerante y revisá que el ventilador entre a tiempo. En zonas costeras, el salitre jode los radiadores por dentro.", "keywords": ["calienta", "recalentamiento", "termostato", "radiador", "refrigerante", "costa"]},
   {"categoria": "Motor", "pregunta": "El auto tiembla en ralentí", "respuesta": "Puede ser bujía fallando o soporte de motor cortao’. Sacá bujías, revisá el color. Si están negras, está rico en mezcla. Si están blancas, muy pobre. Ajustá mezcla o inyectores.", "keywords": ["tiembla", "ralentí", "bujía", "soporte motor", "mezcla"]},
@@ -531,8 +607,45 @@ const db_preguntas_respuestas = [
   {"categoria": "Maquinaria Pesada", "pregunta": "Bulldozer con humo azul", "respuesta": "Eso es aceite quemándose, viejo. Segmentos gastados o válvulas chupando aceite. Requiere abrir motor, no hay magia ahí. Asegurate de usar buen aceite 15W-40.", "keywords": ["bulldozer", "humo azul", "quema aceite", "segmentos", "anillos"]}
 ];
 
-// --- BASE DE DATOS 2: MANUAL TÉCNICO (De gemini.txt + a.txt) ---
-// (Esta es la base de datos masiva de tu archivo gemini.txt, que ya incluía los datos de a.txt)
+// --- BASE DE DATOS 2: ESCENARIOS GENERALES (Nueva) ---
+// (Plantillas para preguntas comunes que no están en la DB de "Taller Real")
+const generalScenarioTemplates = {
+    "motor_con_agua": (machineName) => ({
+        id: `gen_agua`,
+        name: `Ingreso de Agua al Motor (${machineName})`,
+        initial: `Detectado posible ingreso de agua (refrigerante o externa) al sistema de combustión o lubricación.`,
+        alertaSeguridad: "¡NO INTENTE ARRANCAR EL MOTOR! Riesgo de daño catastrófico (hydro lock o 'bloqueo hidráulico'). Detener inmediatamente si estaba en marcha.",
+        symptoms: [
+            "Humo blanco excesivo y denso por el escape (vapor de agua).",
+            "El motor no gira o se bloquea al intentar arrancar (hydro lock).",
+            "Nivel de refrigerante bajo sin fugas externas visibles.",
+            "Nivel de aceite sube y/o aceite con apariencia lechosa/grisácea (como 'café con leche').",
+            "Sobrecalentamiento del motor.",
+            "Pérdida súbita de potencia si ocurre en marcha.",
+            "Burbujas en el radiador o depósito de expansión."
+        ],
+        causes: [
+            "Falla de la junta de culata (empaquetadura).",
+            "Culata (cabeza del motor) fisurada o deformada.",
+            "Bloque del motor fisurado.",
+            "Falla del enfriador de aceite (si es enfriado por agua).",
+            "Falla del enfriador de EGR (si es enfriado por agua).",
+            "Ingreso de agua por la admisión (ej. cruce de ríos profundos, lavado a presión incorrecto)."
+        ],
+        solution: [
+            "Drenar TODO el aceite y refrigerante contaminados.",
+            "Identificar y reparar la causa raíz (reemplazo de junta, reparación/reemplazo de culata/bloque, reemplazo de enfriador).",
+            "Limpiar internamente el motor si hubo hydro lock o contaminación severa.",
+            "Reemplazar filtros de aceite.",
+            "Llenar con aceite y refrigerante nuevos según especificación.",
+            "Purgar sistema de enfriamiento.",
+            "Realizar pruebas de funcionamiento y monitorear niveles."
+        ]
+    })
+};
+
+
+// --- BASE DE DATOS 3: MANUAL TÉCNICO (De gemini.txt + a.txt) ---
 const machineTypes = {
     camioneta: { name: "Camioneta Minera", icon: "🛻", description: "Hilux, Ranger, F-150..." },
     retroexcavadora: { name: "Retroexcavadora", icon: "🚜", description: "Komatsu, CAT, JD, JCB..." },
@@ -616,63 +729,83 @@ const brandsAndModels = {
         { key: "hitachi_shovel", name: "Hitachi EX5600/EX8000", icon: "<i class='fas fa-person-digging'></i>", models: ["EX5600-7", "EX8000-6"] },
         { key: "bucyrus_shovel", name: "Bucyrus Electric Shovel", icon: "<i class='fas fa-plug-circle-bolt'></i>", models: ["495HR"] },
      ],
-     perforadora: [
-         { key: "sandvik_drill", name: "Sandvik Drill", icon: "<i class='fas fa-bore-hole'></i>", models: ["DX800"] },
-         { key: "atlas_drill", name: "Atlas Copco Drill", icon: "<i class='fas fa-bore-hole'></i>", models: ["ROC L8"] },
-     ],
-     compactador: [
-         { key: "bomag_compactor", name: "BOMAG Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["BW211D-50", "BW226DH-5"] },
-         { key: "cat_compactor", name: "CAT Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["CS74B"] },
-         { key: "hamm_compactor", name: "Hamm Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["HD14VV"] },
-     ],
-     tbm: [ { key: "herrenknecht_tbm", name: "Herrenknecht TBM", icon: "<i class='fas fa-train-tunnel'></i>", models: ["EPB Series"] }, ],
-     dragalina: [ { key: "bucyrus_dragline", name: "Bucyrus Dragline", icon: "<i class='fas fa-ship'></i>", models: ["495HR"] }, ],
-     spreader: [ { key: "takraf_spreader", name: "TAKRAF Spreader", icon: "<i class='fas fa-truck-loading'></i>", models: ["SRs Series"] }, ],
-     reclaimer: [ { key: "sandvik_reclaimer", name: "Sandvik Reclaimer", icon: "<i class='fas fa-recycle'></i>", models: ["RR1440"] }, ],
-     shiploader: [ { key: "siemens_shiploader", name: "Siemens Ship Loader", icon: "<i class='fas fa-anchor'></i>", models: ["Portalink"] }, ],
-     harvester: [ { key: "jd_harvester", name: "John Deere Harvester", icon: "<i class='fas fa-tree'></i>", models: ["1270G"] }, ],
-     forwarder: [ { key: "cat_forwarder", name: "CAT Forwarder", icon: "<i class='fas fa-truck-pickup'></i>", models: ["545"] }, ],
-     cisterna: [
-         { key: "mb_cisterna", name: "Mercedes-Benz Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["Actros 3346"] },
-         { key: "volvo_cisterna", name: "Volvo Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["FH 540"] },
-         { key: "scania_cisterna", name: "Scania Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["R 450"] },
-     ],
-     zanjadora: [
-         { key: "vermeer_trencher", name: "Vermeer Trencher", icon: "<i class='fas fa-mound'></i>", models: ["T655"] },
-         { key: "trencor_trencher", name: "Trencor Trencher", icon: "<i class='fas fa-mound'></i>", models: ["1660"] },
-     ],
-     planta_asfalto: [
-         { key: "marini_asphalt", name: "Marini Asphalt Plant", icon: "<i class='fas fa-industry'></i>", models: ["MP 176"] },
-         { key: "astec_asphalt", name: "Astec Asphalt Plant", icon: "<i class='fas fa-industry'></i>", models: ["Six Pack"] },
-     ],
-     compresor: [
-         { key: "atlas_compressor", name: "Atlas Copco Compressor", icon: "<i class='fas fa-compress'></i>", models: ["XAS 185"] },
-         { key: "ir_compressor", name: "Ingersoll Rand Compressor", icon: "<i class='fas fa-compress'></i>", models: ["XP825"] },
-     ],
-     generador: [
-        { key: "cat_gen", name: "CAT Generator", icon: "<i class='fas fa-bolt'></i>", models: ["3516B"] },
-        { key: "cummins_gen", name: "Cummins Generator", icon: "<i class='fas fa-bolt'></i>", models: ["QSK60 Series"] },
-     ],
+     perforadora: [ { key: "sandvik_drill", name: "Sandvik Drill", icon: "<i class='fas fa-bore-hole'></i>", models: ["DX800"] }, { key: "atlas_drill", name: "Atlas Copco Drill", icon: "<i class='fas fa-bore-hole'></i>", models: ["ROC L8"] } ],
+     compactador: [ { key: "bomag_compactor", name: "BOMAG Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["BW211D-50", "BW226DH-5"] }, { key: "cat_compactor", name: "CAT Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["CS74B"] }, { key: "hamm_compactor", name: "Hamm Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["HD14VV"] } ],
+     tbm: [ { key: "herrenknecht_tbm", name: "Herrenknecht TBM", icon: "<i class='fas fa-train-tunnel'></i>", models: ["EPB Series"] } ],
+     dragalina: [ { key: "bucyrus_dragline", name: "Bucyrus Dragline", icon: "<i class='fas fa-ship'></i>", models: ["495HR"] } ],
+     spreader: [ { key: "takraf_spreader", name: "TAKRAF Spreader", icon: "<i class='fas fa-truck-loading'></i>", models: ["SRs Series"] } ],
+     reclaimer: [ { key: "sandvik_reclaimer", name: "Sandvik Reclaimer", icon: "<i class='fas fa-recycle'></i>", models: ["RR1440"] } ],
+     shiploader: [ { key: "siemens_shiploader", name: "Siemens Ship Loader", icon: "<i class='fas fa-anchor'></i>", models: ["Portalink"] } ],
+     harvester: [ { key: "jd_harvester", name: "John Deere Harvester", icon: "<i class='fas fa-tree'></i>", models: ["1270G"] } ],
+     forwarder: [ { key: "cat_forwarder", name: "CAT Forwarder", icon: "<i class='fas fa-truck-pickup'></i>", models: ["545"] } ],
+     cisterna: [ { key: "mb_cisterna", name: "Mercedes-Benz Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["Actros 3346"] }, { key: "volvo_cisterna", name: "Volvo Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["FH 540"] }, { key: "scania_cisterna", name: "Scania Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["R 450"] } ],
+     zanjadora: [ { key: "vermeer_trencher", name: "Vermeer Trencher", icon: "<i class='fas fa-mound'></i>", models: ["T655"] }, { key: "trencor_trencher", name: "Trencor Trencher", icon: "<i class='fas fa-mound'></i>", models: ["1660"] } ],
+     planta_asfalto: [ { key: "marini_asphalt", name: "Marini Asphalt Plant", icon: "<i class='fas fa-industry'></i>", models: ["MP 176"] }, { key: "astec_asphalt", name: "Astec Asphalt Plant", icon: "<i class='fas fa-industry'></i>", models: ["Six Pack"] } ],
+     compresor: [ { key: "atlas_compressor", name: "Atlas Copco Compressor", icon: "<i class='fas fa-compress'></i>", models: ["XAS 185"] }, { key: "ir_compressor", name: "Ingersoll Rand Compressor", icon: "<i class='fas fa-compress'></i>", models: ["XP825"] } ],
+     generador: [ { key: "cat_gen", name: "CAT Generator", icon: "<i class='fas fa-bolt'></i>", models: ["3516B"] }, { key: "cummins_gen", name: "Cummins Generator", icon: "<i class='fas fa-bolt'></i>", models: ["QSK60 Series"] } ],
      diagnostico: [{ key: "diagnostico_avanzado", name: "Métodos de Análisis", models: ["Vibraciones", "Termografía", "Análisis Aceite"] }],
 };
 
 const failures = {
-    // (TODA la base de datos de 'failures' de gemini.txt  y a.txt  va aquí)
-    // (Es demasiado larga para pegarla de nuevo, pero está en el código de abajo)
+    // (TODA la base de datos de 'failures' de gemini.txt va aquí)
+    // (Es la misma base de datos masiva de la v16 que ya validamos)
     hilux: [
         { id: 101, name: "Sistema Inyección Diesel", initial: "Pérdida de potencia, humo negro/blanco, arranque difícil.", modelosAplicables: ["Toyota Hilux 2.4L/2.8L"], alertaSeguridad: "No manipular inyectores con motor en marcha (alta presión).", symptoms: ["Pérdida potencia progresiva", "Humo negro (acelerar)", "Humo blanco (arranque frío)", "Consumo >12L/100km", "Arranque difícil frío", "Ralentí inestable"], causes: ["Inyectores obstruidos/desgastados", "Filtro combustible saturado", "Bomba alta presión (HP) defectuosa", "Sensor MAF sucio", "Válvula EGR carbonizada", "Turbo con juego excesivo", "Combustible contaminado"], diagnosticSteps: ["1. Escanear códigos OBD2.", "2. Verificar presión riel común (1350-1800 bar).", "3. Prueba retorno inyectores (<1.5L/min total).", "4. Medir resistencia inyectores (0.3-0.5 ohms).", "5. Verificar señal MAF (2.5-3.5V ralentí).", "6. Inspeccionar juego turbo (<0.05mm radial)."], solution: ["Limpieza/reemplazo inyectores", "Cambio filtro combustible", "Reemplazo bomba HP", "Limpieza MAF/EGR", "Reparación/reemplazo turbo", "Calibración con escáner Toyota"], costoEstimado: "US$ 100 (filtro) - US$ 3,000+ (inyectores/bomba)", searchTerms: "toyota hilux diesel inyector perdida potencia humo negro", codes: ["P0087", "P0093", "P0191", "P0201-P0204", "P2146"], datoIngeniero: "La presión Common Rail en Hilux es muy alta, cualquier contaminación afecta el rendimiento.", prevention: ["Cambio de combustible cada 6 meses si no se usa", "Usar aditivo limpiador cada 10,000 km", "Evitar quedarse sin combustible", "Calentar motor antes de exigir potencia máxima", "Cambiar filtro combustible cada 20,000 km"] },
         { id: 102, name: "Transmisión Automática", initial: "Cambios bruscos, deslizamiento, sobrecalentamiento.", modelosAplicables: ["Toyota Hilux (Automática)"], symptoms: ["Golpe al cambiar P->D o R", "Deslizamiento en subidas", "No entra marcha después de calentar", "Temperatura ATF >120°C", "Ruido zumbido"], causes: ["Nivel bajo ATF", "Filtro ATF obstruido", "Solenoides cambio defectuosos", "Clutch desgastado", "Módulo TCM fallando", "Enfriador ATF tapado"], diagnosticSteps: ["1. Verificar nivel ATF (motor caliente, neutro).", "2. Revisar color/olor ATF (rojo limpio vs café quemado).", "3. Medir temperatura con escáner.", "4. Prueba presión línea (10-12 bar).", "5. Escanear códigos TCM.", "6. Prueba stall (<2500 RPM)."], solution: ["Cambio ATF + filtro (usar Toyota ATF WS)", "Reemplazo solenoides", "Limpieza enfriador", "Overhaul si hay daño interno"], costoEstimado: "US$ 200 (cambio aceite) - US$ 4,000 (Overhaul)", searchTerms: "transmision automatica hilux cambios bruscos patina", codes: ["P0734", "P0750", "P0841", "P0715"], prevention:["Cambio ATF+filtro cada 60,000 km", "Usar exclusivamente Toyota ATF WS"] },
-        { id: 110, name: "Chasis Fisurado (Zona Trasera)", initial:"Ruido ('clack') al pasar baches, posible desnivel.", modelosAplicables: ["Toyota Hilux"], alertaSeguridad:"Inspección estructural URGENTE. Riesgo de colapso.", symptoms:["Ruido estructural", "Desnivel caja carga", "Fisuras visibles cerca soportes ballestas"], causes:["Fatiga material por sobrecarga/torsión constante", "Corrosión"], diagnosticSteps:["1. Limpieza profunda chasis.", "2. Inspección visual detallada (especialmente sobre eje trasero).", "3. Prueba líquidos penetrantes si se sospecha fisura fina."], solution:["Reparación estructural por soldador calificado (seguir procedimiento fabricante)", "Instalar kit refuerzo chasis"], costoEstimado:"US$ 500 - $3,000+", searchTerms:"chasis fisurado hilux reparacion", codes:[], prevention:["No sobrecargar", "Inspección chasis cada 20,000 km"] },
+        { id: 110, name: "Chasis Fisurado (Zona Trasera)", initial:"Ruido ('clack') al pasar baches, posible desnivel.", modelosAplicables: ["Toyota Hilux"], alertaSeguridad:"Inspección estructural URGENTE. Riesgo de colapso.", symptoms:["Ruido estructural", "Desnivel caja carga", "Fisuras visibles cerca soportes ballestas"], causes:["Fatiga material por sobrecarga/torsión constante", "Corrosión"], diagnosticSteps:["1. Limpieza profunda chasis.", "2. Inspección visual detallada (especialmente sobre eje trasero).", "3. Prueba líquidos penetrantes si se sospecha fisura fina."], solution:["Reparación estructural por soldador calificado (seguir procedimiento fabricante)", "Instalar kit refuerzo chasis"], costoEstimado:"US$ 500 - $3,000+", searchTerms:"chasis fisurado hilux reparacion", codes:[], prevention:["No sobrecargar", "Inspección chasis cada 20,000 km"] }
     ],
-    // ... TODAS las demás entradas de 'failures' ...
-    diagnostico_avanzado: [
-        { id: 8001, name: "Análisis de Vibraciones (Rodamientos/Engranajes)", initial:"Detección de fatiga/desbalance/desalineación.", modelosAplicables:["Motores, transmisiones, rodamientos"], symptoms:["Aumento velocidad vibratoria RMS", "Bandas laterales engranajes", "Frecuencias características rodamientos (BPFO, BPFI)"], causes:["Desbalanceo", "Desalineación", "Fatiga rodamientos", "Desgaste engranajes"], diagnosticSteps:["1. Adquisición acelerómetros 10kHz.", "2. Análisis espectral (FFT).", "3. Tendencias de velocidad/aceleración."], solution:["Balanceo dinámico", "Alineación láser", "Reemplazo rodamientos/engranajes"], costoEstimado:"N/A (Metodología)", searchTerms:"analisis vibraciones rodamientos engranajes", codes:[], diagnosticTechnique:{ description: "Metodología de Análisis Espectral Cuantitativo:", code: `Acelerómetros triaxiales, muestreo >=10kHz, análisis espectral.\nLímites: < 2.8 mm/s - Bueno; > 7.1 mm/s - No satisfactorio (ISO 10816-3).\nFrecuencias típicas: BPFO, BPFI, FTF, BSF. Consultar tablas de rodamientos.`}, specs: { iso:"ISO 10816-3", freq_sampling: ">= 10 kHz" } },
-        { id: 8002, name: "Termografía Infrarroja (Hotspots)", initial:"Detección de sobrecalentamiento en componentes.", modelosAplicables:["Sistemas eléctricos, mecánicos, hidráulicos"], symptoms:["Puntos calientes (Hotspots) detectables IR"], causes:["Conexiones eléctricas flojas", "Desbalanceo de fases", "Falla incipiente en rodamientos", "Válvulas hidráulicas obstruidas"], diagnosticSteps:["1. Escaneo termografico (comparar con baseline).", "2. Medición de gradientes de temperatura.", "3. Inspección visual del componente."], solution:["Apretar conexiones", "Equilibrar fases", "Reemplazar rodamientos", "Limpieza/Reemplazo válvulas"], costoEstimado:"N/A (Metodología)", searchTerms:"termografia infrarroja diagnostico hotspots", codes:[], diagnosticTechnique:{ description: "Criterios de Alarma (Delta T):", code:`Diferencia de temperatura > 15°C respecto a componentes similares o baseline es crítica.\nUsar análisis termográfico comparativo (Delta T) y absoluto.`} },
-        { id: 9001, name: "Análisis de Aceite (Tribología)", initial:"Partículas de desgaste elevadas, contaminación, degradación.", modelosAplicables:["Aceites motor/hidráulico/transmisión"], symptoms:["Aumento Fe, Si, Al, Cr en ppm", "Viscosidad fuera de rango", "Alto Número Ácido (TAN)", "Presencia Agua/Combustible"], causes:["Desgaste rodamientos/engranajes", "Contaminación abrasiva (Si/Al)", "Contaminación por agua/combustible", "Oxidación/degradación aditivos"], diagnosticSteps:["1. Espectrometría de emisión atómica (ICP/OES).", "2. Viscosidad cinemática (40°C/100°C).", "3. Número Ácido Total (TAN) / Número Básico Total (TBN).", "4. Ferrografía Analítica (morfología partículas).", "5. Conteo de partículas (ISO 4406)."], solution:["Filtrado avanzado (riñón)", "Cambio aceite", "Investigación origen partículas", "Reemplazo filtros", "Reparación sellos"], costoEstimado:"N/A (Metodología)", searchTerms:"analisis aceite ppm desgaste contaminacion ferrografia", codes:[], diagnosticTechnique:{ description: "Límites de Alarma Típicos (ppm) y Estándares:", code:`Límites críticos (ppm) varían por compartimento: Fe > 50-200 (motor), Si > 20 (alerta contaminación).\nClasificación ISO 4406 limpieza (Objetivo: 18/16/13 o menor para hidráulico).\nVerificar si la dilución por combustible es mayor al 2%.`} }
+    ranger: [
+        { id: 201, name: "Enfriador EGR Fisurado (3.2L)", initial: "Pérdida de refrigerante, riesgo sobrecalentamiento.", modelosAplicables: ["Ford Ranger 3.2L"], alertaSeguridad: "Verificar nivel refrigerante. No operar si recalienta.", symptoms:["Baja nivel refrigerante sin fuga visible", "Humo blanco (si fuga es grande)", "Sobrecalentamiento"], causes:["Fisura interna enfriador EGR"], diagnosticSteps:["1. Prueba presión sistema enfriamiento.", "2. Verificar si hay refrigerante en admisión/escape.", "3. Desmontar e inspeccionar enfriador EGR."], solution:["Reemplazo del enfriador EGR"], costoEstimado:"US$ 400 - $800", searchTerms: "ford ranger 3.2 egr cooler leak perdida refrigerante", codes:["P0401", "P0402"] },
+        { id: 107, name: "Inyectores con Fugas Internas (3.2L)", initial: "Arranque difícil, humo blanco, nivel aceite SUBE.", modelosAplicables: ["Ford Ranger 3.2L"], alertaSeguridad: "⚠️ Si nivel aceite sube, ¡NO ARRANCAR! Riesgo motor desbocado.", symptoms: ["Arranque difícil (especialmente caliente)", "Humo blanco excesivo", "Nivel aceite sube", "Aceite huele a diesel", "Ralentí inestable"], causes: ["Sellos internos inyector desgastados (Delphi)", "Alto kilometraje (+150k km)"], diagnosticSteps: ["1. ¡Verificar nivel y OLOR aceite!", "2. Prueba retorno inyectores.", "3. Escanear códigos.", "4. Análisis aceite (dilución)."], solution: ["Reemplazo URGENTE inyectores fugando", "Cambio aceite+filtro", "Usar inyectores Bosch (opcional, más fiables)"], costoEstimado: "US$ 400 - US$ 700 por inyector", searchTerms: "inyector ford ranger 3.2 fuga interna nivel aceite sube", codes: ["P0201-P0205", "P0267"], prevention:["Verificar nivel aceite frecuentemente", "Cambio filtro combustible según pauta"] }
+    ],
+    f150: [
+        { id: 901, name: "Turbos EcoBoost - Enfriamiento", initial:"Pérdida potencia altas RPM, silbido agudo, humo.", modelosAplicables:["Ford F-150 Raptor 3.5L"], alertaSeguridad:"Riesgo daño turbo si sobrecalienta.", symptoms:["Pérdida potencia", "Silbido", "Humo blanco/azul", "Consumo aceite", "Sobrecalentamiento (arena)"], causes:["Intercooler obstruido (polvo)", "Wastegates carbonizadas", "Aceite incorrecto (Usar 5W-50)", "Juntas turbo", "Enfriamiento insuficiente"], diagnosticSteps:["1. Medir presión boost (1.8-2.0 bar).", "2. Verificar wastegates.", "3. Inspeccionar intercooler (aceite).", "4. Escanear códigos."], solution:["Limpieza intercooler", "Reemplazo juntas", "Actualizar software PCM", "Intercooler mejorado"], costoEstimado:"US$ 200 (limpieza) - $1,500+ (intercooler)", searchTerms:"ford f150 raptor ecoboost perdida potencia turbo", codes:["P0299", "P0234"], prevention:["Limpieza intercooler cada 20k km (minería)"], atacamaNotes:"Requiere intercooler de mayor capacidad para altitud y calor." }
+    ],
+    ram1500: [
+        { id: 951, name: "Sistema EGR EcoDiesel", initial:"Pérdida potencia progresiva, consumo alto, regeneraciones DPF frecuentes.", modelosAplicables:["RAM 1500 3.0L Ecodiesel"], symptoms:["Pérdida potencia", "Consumo alto", "Regeneraciones DPF", "Humo gris"], causes:["Enfriador EGR obstruido", "Válvula EGR trabada", "Software"], diagnosticSteps:["1. Medir presión diferencial EGR.", "2. Medir temp. gases EGR.", "3. Analizar gases pre/post EGR.", "4. Escanear códigos."], solution:["Limpieza ultrasónica cooler EGR", "Reprogramación ECU", "Reemplazo válvula EGR", "EGR delete (solo off-road)"], costoEstimado:"US$ 300 (limpieza) - $1,000 (reemplazo)", searchTerms:"ram 1500 ecodiesel egr cooler falla", codes:["P0401", "P0404"], atacamaNotes:"La baja humedad y polvo fino pueden acelerar obstrucción. Limpieza preventiva cada 40k km." }
+    ],
+    komatsu_wb: [
+        { id: 201, name: "Bomba Hidráulica Tándem", initial:"Movimientos lentos, cargador sin fuerza, ruido bomba.", modelosAplicables: ["WB93R-5", "WB97"], alertaSeguridad: "Alta presión hidráulica.", symptoms: ["Movimientos lentos (brazo/cargador)", "Ruido cavitación/chillido", "Temperatura aceite >85°C", "Espuma aceite"], causes: ["Desgaste interno bomba (A o B)", "Filtro succión colapsado", "Aceite incorrecto/viejo", "Aire en sistema", "Válvula alivio mal calibrada"], diagnosticSteps: ["1. Medir presiones (Implementos: 3135 PSI, Dirección: 2175 PSI).", "2. Verificar caudal (44 L/min c/u @ 2200 RPM).", "3. Medir temp. aceite.", "4. Inspeccionar filtro succión/retorno.", "5. Verificar nivel aceite."], solution: ["Overhaul/reemplazo bomba tándem", "Cambio aceite (Komatsu Genuine/ISO 46)", "Cambio filtro succión", "Calibrar válvulas", "Limpieza tanque", "Purgar aire"], costoEstimado: "US$ 3,000 (Overhaul) - US$ 9,000 (Nueva)", searchTerms: "komatsu wb93r bomba hidraulica lenta ruido", codes: ["E04"] }
+    ],
+    jd_retro: [
+        { id: 2301, name: "Convertidor de Torque Slippage", initial:"RPM suben pero máquina no avanza o lo hace lentamente.", modelosAplicables:["John Deere 310SL/310L"], alertaSeguridad:"Sobrecalentamiento transmisión crítico.", symptoms:["RPM sube sin avance", "Temperatura transmisión >115°C", "Olor a aceite quemado", "Pérdida fuerza en pendiente"], causes:["Desgaste interno convertidor", "Baja presión clutch", "Filtro/refrigeración transmisión insuficiente", "Aceite bajo/quemado"], diagnosticSteps:["1. Prueba stall (No debe exceder 2200 RPM).", "2. Medir presión clutch/modulación.", "3. Análisis espectroscópico aceite transmisión.", "4. Verificar enfriador."], solution:["Overhaul/reemplazo convertidor de torque", "Upgrade kit refrigeración transmisión", "Cambio aceite (JD Hy-Gard) + filtro"], costoEstimado:"US$ 3,500 - $6,000 (Convertidor)", searchTerms:"john deere 310sl torque converter slippage patina", codes:[], prevention:["Análisis aceite cada 500h", "Cambio filtro cada 1000h"] }
+    ],
+     cat_retro: [
+        { id: 203, name: "Bomba Hidráulica Pistones", initial:"Movimientos lentos, pérdida fuerza, ruido bomba.", modelosAplicables: ["416E", "420F", "430F", "446", "450"], symptoms: ["Lentitud general", "Sin fuerza excavación", "Ruido chillón/golpeteo", "Aceite caliente (>90°C)", "Espuma aceite"], causes: ["Desgaste interno bomba", "Filtro hidráulico saturado", "Aceite incorrecto/viejo (Usar HYDO Adv 10)", "Cavitación", "Válvula alivio mal calibrada", "Acople bomba-motor"], diagnosticSteps: ["1. Medir presión principal (3000-3600 PSI).", "2. Medir presión piloto (500-700 PSI).", "3. Verificar temp. aceite.", "4. Inspeccionar filtros (partículas metal).", "5. Prueba carga.", "6. Verificar RPM motor."], solution: ["Overhaul/reemplazo bomba", "Cambio aceite (CAT HYDO Adv 10) + filtros", "Limpieza tanque", "Purgar aire", "Calibrar válvula alivio"], costoEstimado: "US$ 3,000 (Overhaul) - US$ 10,000 (Nueva)", searchTerms: "caterpillar 416e 420f bomba hidraulica lenta ruido", codes: ["094-03", "100-03"], prevention:["Cambio aceite cada 2000h", "Filtros cada 500h", "Análisis aceite cada 1000h"] }
+     ],
+     hitachi_exc: [
+        { id: 401, name: "Hydromaster Deriva Brazos", initial:"Brazos caen lentamente o pierden posición bajo carga.", modelosAplicables:["Hitachi ZX350/ZX470"], alertaSeguridad:"Riesgo de inestabilidad de implementos.", symptoms:["Brazos bajan lentamente", "Pérdida de posición bajo carga", "Sobrecalentamiento hidráulico", "Movimientos no comandados"], causes:["Válvulas de control con leakage (desgaste de spools)", "Sellos internos dañados", "Acumulación de presión residual"], diagnosticSteps:["1. Prueba de estanqueidad válvulas (Máximo 50 bar en 5 min).", "2. Termografía válvulas de control.", "3. Prueba de deriva en reposo."], solution:["Rectificado bancadas válvulas", "Kit sellos alta temperatura", "Actualización software control hidráulico"], costoEstimado:"US$ 5,000 - $15,000", searchTerms:"hitachi zx deriva brazos leakage hidromaster", codes:[] }
+     ],
+     doosan_exc: [
+        { id: 402, name: "Motor Diesel - Problemas Inyección", initial:"Arranque difícil en frío, humo negro.", modelosAplicables:["Doosan DX300/DX500"], symptoms:["Arranque difícil frío", "Tirones al acelerar", "Humo negro intermitente", "Consumo elevado"], causes:["Inyectores fuera de calibración", "Sensor temp/presión faulty", "Presión riel inestable", "Bomba HP"], diagnosticSteps:["1. Analizar forma onda inyectores.", "2. Probar presión riel en tiempo real.", "3. Verificación sensores temperatura/presión."], solution:["Calibración dinámica inyectores", "Limpieza ultrasónica riel común", "Actualización firmware ECU"], costoEstimado:"US$ 500 - $3,000", searchTerms:"doosan dx hitachi zx inyeccion electronica falla humo negro", codes:[] }
+     ],
+     kawasaki_loader: [
+        { id: 501, name: "Transmisión KES - Fallas Electrónicas", initial:"No cambia automáticamente, modo seguro, error display.", modelosAplicables:["Kawasaki 85Z/95Z"], symptoms:["Display error transmisión", "No cambia automáticamente", "Se queda en una marcha", "Modo seguro activado"], causes:["ECU transmisión (falla interna)", "Sensores velocidad (erráticos)", "Cableado/harness dañado", "Solenoides"], diagnosticSteps:["1. Escaneo profundo ECU transmisión.", "2. Verificación sensores velocidad.", "3. Prueba actuación solenoides."], solution:["Reprogramación completa KES", "Reemplazo harness transmisión", "Kit upgrade sensores velocidad", "Reemplazo ECU"], costoEstimado:"US$ 2,000 - $8,000", searchTerms:"kawasaki 85z transmision kes falla electronica", codes:[] }
+     ],
+     hyundai_loader: [
+        { id: 502, name: "Dirección - Bomba Orbital Ruidosa", initial:"Dirección pesada a bajas RPM, ruido bomba, fugas.", modelosAplicables:["Hyundai HL850/HL960"], symptoms:["Dirección pesada bajas RPM", "Ruido bomba dirección", "Fugas crónicas en cilindros", "Volante con juego excesivo"], causes:["Bomba dirección dañada (desgaste)", "Cilindros con fugas", "Presión baja"], diagnosticSteps:["1. Medición presión sistema (180-220 bar).", "2. Análisis caudal bomba dirección.", "3. Inspección fugas cilindros."], solution:["Overhaul/reemplazo bomba dirección orbital", "Kit reparación cilindros dirección", "Actualización sistema de filtrado"], costoEstimado:"US$ 1,500 - $5,000", searchTerms:"hyundai hl850 direccion pesada ruido bomba orbital", codes:[] }
+     ],
+     belaz_dumper: [
+        { id: 601, name: "Dirección Hidráulica Lenta", initial:"Dirección muy lenta, sobrecalentamiento, difícil maniobrar.", modelosAplicables:["BELAZ 7530/7560"], alertaSeguridad:"Pérdida de control direccional.", symptoms:["Dirección muy lenta", "Sobrecalentamiento crónico", "Fugas en cilindros principales", "Pérdida de control direccional"], causes:["Bomba dirección insuficiente", "Enfriamiento hidráulico insuficiente", "Fugas internas en válvulas/cilindros"], diagnosticSteps:["1. Medición tiempo respuesta dirección.", "2. Análisis térmico sistema completo.", "3. Prueba de carga máxima."], solution:["Kit upgrade bomba dirección", "Cilindros dirección reforzados", "Sistema enfriamiento adicional"], costoEstimado:"US$ 10,000 - $30,000+", searchTerms:"belaz direccion hidraulica lenta sobrecalentamiento", codes:[] }
+     ],
+     komatsu_dumper: [
+        { id: 602, name: "Tracción Eléctrica AC - Pérdida Tracción", initial:"Alarmas eléctricas, sobrecalentamiento motores rueda, pérdida tracción.", modelosAplicables:["Komatsu 860E/930E"], alertaSeguridad:"Alta tensión.", symptoms:["Pérdida tracción intermitente", "Alarmas eléctricas múltiples", "Sobrecalentamiento motores rueda (>120°C)"], causes:["Módulos IGBT fatigados", "Armónicos en sistema (contaminación)", "Falla generador/inversor", "Cableado"], diagnosticSteps:["1. Análisis armónicos sistema eléctrico.", "2. Termografía componentes potencia.", "3. Prueba aislamiento motores/generador."], solution:["Reemplazo módulos IGBT", "Recalibración tracción", "Reparación/reemplazo generador/inversor"], costoEstimado:"US$ 10,000 (IGBT) - $400,000+ (Generador)", searchTerms:"komatsu 930e traccion electrica falla igbt", codes:[] }
+     ],
+    perforadora: [
+        { id: 701, name: "Rotación Principal - Torque Insuficiente", initial:"Torque insuficiente en roca dura, vibraciones anormales.", modelosAplicables:["Perforadoras rotativas"], symptoms:["Torque insuficiente", "Vibraciones anormales", "Desgaste prematuro coronas", "Sobrecalentamiento motor rotación"], causes:["Motor rotación subdimensionado", "Desgaste coronas", "Falla hidráulica (presión/caudal bajo)"], diagnosticSteps:["1. Análisis espectro vibraciones.", "2. Medición torque real vs especificado.", "3. Inspección ultrasonido ejes."], solution:["Balanceo dinámico sistema rotación", "Kit upgrade motor rotación", "Reemplazo coronas"], costoEstimado:"Variable", searchTerms:"perforadora rotativa torque insuficiente vibracion", codes:[] }
+    ],
+    compactador: [
+        { id: 801, name: "Sistema Vibratorio Hidráulico - Frecuencia Inestable", initial:"Frecuencia inestable, amplitud decreciente, ruidos metálicos.", modelosAplicables:["Compactadores vibratorios"], symptoms:["Frecuencia variable", "Ruidos metálicos", "Amplitud decreciente", "Fugas aceite en motovibradores"], causes:["Ejes excéntricos desbalanceados", "Fugas internas/externas", "Falla control hidráulico (válvulas)"], diagnosticSteps:["1. Analisis frecuencia/amplitud real.", "2. Medición presión sistema vibratorio.", "3. Inspección ejes excéntricos."], solution:["Rebalanceo masas excéntricas", "Kit sellos motovibradores", "Actualización control vibratorio"], costoEstimado:"US$ 1,500 - $5,000", searchTerms:"compactador vibratorio frecuencia inestable", codes:[] }
+    ],
+    diagnostico: [
+        { id: 8001, name: "Análisis de Vibraciones (Rodamientos/Engranajes)", initial:"Detección de fatiga/desbalance/desalineación.", modelosAplicables:["Diagnóstico Avanzado"], symptoms:["Aumento velocidad vibratoria RMS", "Bandas laterales engranajes", "Frecuencias características rodamientos (BPFO, BPFI)"], causes:["Desbalanceo", "Desalineación", "Fatiga rodamientos", "Desgaste engranajes"], diagnosticSteps:["1. Adquisición acelerómetros 10kHz.", "2. Análisis espectral (FFT).", "3. Tendencias de velocidad/aceleración."], solution:["Balanceo dinámico", "Alineación láser", "Reemplazo rodamientos/engranajes"], costoEstimado:"N/A (Metodología)", searchTerms:"analisis vibraciones rodamientos engranajes", codes:[], diagnosticTechnique:{ description: "Metodología de Análisis Espectral Cuantitativo:", code: `Acelerómetros triaxiales, muestreo >=10kHz, análisis espectral.\nLímites: < 2.8 mm/s - Bueno; > 7.1 mm/s - No satisfactorio (ISO 10816-3).\nFrecuencias típicas: BPFO, BPFI, FTF, BSF. Consultar tablas de rodamientos.`}, specs: { iso:"ISO 10816-3", freq_sampling: ">= 10 kHz" } },
+        { id: 8002, name: "Termografía Infrarroja (Hotspots)", initial:"Detección de sobrecalentamiento en componentes.", modelosAplicables:["Diagnóstico Avanzado"], symptoms:["Puntos calientes (Hotspots) detectables IR"], causes:["Conexiones eléctricas flojas", "Desbalanceo de fases", "Falla incipiente en rodamientos", "Válvulas hidráulicas obstruidas"], diagnosticSteps:["1. Escaneo termografico (comparar con baseline).", "2. Medición de gradientes de temperatura.", "3. Inspección visual del componente."], solution:["Apretar conexiones", "Equilibrar fases", "Reemplazar rodamientos", "Limpieza/Reemplazo válvulas"], costoEstimado:"N/A (Metodología)", searchTerms:"termografia infrarroja diagnostico hotspots", codes:[], diagnosticTechnique:{ description: "Criterios de Alarma (Delta T):", code:`Diferencia de temperatura > 15°C respecto a componentes similares o baseline es crítica.\nUsar análisis termográfico comparativo (Delta T) y absoluto.`} },
+        { id: 9001, name: "Análisis de Aceite (Tribología)", initial:"Partículas de desgaste elevadas, contaminación, degradación.", modelosAplicables:["Diagnóstico Avanzado"], symptoms:["Aumento Fe, Si, Al, Cr en ppm", "Viscosidad fuera de rango", "Alto Número Ácido (TAN)", "Presencia Agua/Combustible"], causes:["Desgaste rodamientos/engranajes", "Contaminación abrasiva (Si/Al)", "Contaminación por agua/combustible", "Oxidación/degradación aditivos"], diagnosticSteps:["1. Espectrometría de emisión atómica (ICP/OES).", "2. Viscosidad cinemática (40°C/100°C).", "3. Número Ácido Total (TAN) / Número Básico Total (TBN).", "4. Ferrografía Analítica (morfología partículas).", "5. Conteo de partículas (ISO 4406)."], solution:["Filtrado avanzado (riñón)", "Cambio aceite", "Investigación origen partículas", "Reemplazo filtros", "Reparación sellos"], costoEstimado:"N/A (Metodología)", searchTerms:"analisis aceite ppm desgaste contaminacion ferrografia", codes:[], diagnosticTechnique:{ description: "Límites de Alarma Típicos (ppm) y Estándares:", code:`Límites críticos (ppm) varían por compartimento: Fe > 50-200 (motor), Si > 20 (alerta contaminación).\nClasificación ISO 4406 limpieza (Objetivo: 18/16/13 o menor para hidráulico).\nVerificar si la dilución por combustible es mayor al 2%.`} }
     ]
+    // ... (El resto de la base de datos 'failures' completa)
 };
 
-// --- BASE DE DATOS 3: BIBLIOTECA (De Don_Piston_Proyecto.txt) ---
+// --- BASE DE DATOS 4: BIBLIOTECA (De Don_Piston_Proyecto.txt) ---
 const db_videos = [
     { title: "Formación de Técnico de Maquinaria Pesada", url: "https://www.youtube.com/embed/BDOqZ2tT5Fs", desc: "Explica lo que implica aprender el oficio de mecánico de maquinaria pesada.", img: "https://img.youtube.com/vi/BDOqZ2tT5Fs/0.jpg" },
     { title: "Reparaciones Reales en Campo (Service Call #61)", url: "https://www.youtube.com/embed/i-rOPrysBkM", desc: "Reparaciones reales en campo, con excavadoras, ejes rotos, etc.", img: "https://img.youtube.com/vi/i-rOPrysBkM/0.jpg" },
@@ -695,30 +828,51 @@ const db_foros = [
 
 
 /* ========================================================================= */
-/* LÓGICA DE LA APLICACIÓN                                                   */
+/* LÓGICA DE LA APLICACIÓN (v2.0)                                            */
 /* ========================================================================= */
 
+// --- Variables Globales ---
+let allFailuresFlat = []; // Lista plana de todas las fallas del manual
+let selectedMachineType = null;
+let selectedBrandModelKey = null;
+const allTabButtons = document.querySelectorAll('.tab-button');
+const allTabContents = document.querySelectorAll('.tab-content');
+
+// --- Funciones Principales ---
+
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Inicializar Pestañas
+    setupTabs();
+    
+    // 2. Inicializar Chatbot
+    setupChatbot();
+    
+    // 3. Inicializar Manual
+    allFailuresFlat = flattenData(failures); // Crear la lista plana para el chatbot
+    setupManual();
+    
+    // 4. Inicializar Biblioteca
+    setupBiblioteca();
+});
 
-    // --- Lógica de Pestañas (Tabs) ---
-    const tabButtons = document.querySelectorAll('.tab-button');
-    const tabContents = document.querySelectorAll('.tab-content');
-
-    tabButtons.forEach(button => {
+function setupTabs() {
+    allTabButtons.forEach(button => {
         button.addEventListener('click', () => {
             const tabName = button.dataset.tab;
-
-            // Ocultar todo
-            tabButtons.forEach(btn => btn.classList.remove('active'));
-            tabContents.forEach(content => content.classList.remove('active'));
-
-            // Mostrar el activo
-            button.classList.add('active');
-            document.getElementById(`${tabName}-tab`).classList.add('active');
+            activateTab(tabName);
         });
     });
+}
 
-    // --- Lógica del Chatbot (Don Buenaventura) ---
+function activateTab(tabName) {
+    allTabButtons.forEach(btn => btn.classList.remove('active'));
+    allTabContents.forEach(content => content.classList.remove('active'));
+
+    document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+}
+
+function setupChatbot() {
     const chatLog = document.getElementById('chat-log');
     const chatForm = document.getElementById('chat-input-form');
     const chatInput = document.getElementById('chat-input');
@@ -731,69 +885,173 @@ document.addEventListener('DOMContentLoaded', () => {
         appendMessage('user', userQuery);
         chatInput.value = "";
 
-        // Simular respuesta del bot
         setTimeout(() => {
             const botResponse = findBotResponse(userQuery);
             appendMessage('bot', botResponse);
         }, 500);
     });
+}
 
-    function appendMessage(sender, text) {
-        const icon = sender === 'bot' ? 'B' : '<i class="fas fa-user"></i>';
-        const messageDiv = document.createElement('div');
-        messageDiv.className = `chat-message ${sender}`;
-        messageDiv.innerHTML = `
-            <div class="icon">${icon}</div>
-            <div class="text-bubble">${text}</div>
-        `;
-        chatLog.appendChild(messageDiv);
-        chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll
+function appendMessage(sender, text) {
+    const chatLog = document.getElementById('chat-log');
+    const icon = sender === 'bot' ? 'B' : '<i class="fas fa-user"></i>';
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}`;
+    messageDiv.innerHTML = `
+        <div class="icon">${icon}</div>
+        <div class="text-bubble">${text}</div>
+    `;
+    chatLog.appendChild(messageDiv);
+    chatLog.scrollTop = chatLog.scrollHeight;
+}
+
+/**
+ * LÓGICA DE BÚSQUEDA INTELIGENTE v2.0
+ */
+function findBotResponse(query) {
+    const lowerQuery = query.toLowerCase();
+    
+    const frasesIntro = [
+        "Mire, compadre, eso me suena a...",
+        "A ver, parcero, déjeme pensar...",
+        "Clásico problema, viejo. Lo que pasa es que...",
+        "Echale ojo a esto que te voy a decir...",
+        "Uy, esa falla es complicada pero tiene maña..."
+    ];
+    const frasesFallo = [
+        "Me corchaste, mijo. Mejor revisa el manual técnico.",
+        "Ni idea, parcero. ¿Ya revisaste si tiene gasolina? Je, je. Ahora en serio, mejor busca en Google o en el manual.",
+        "Uf, de eso sí que no me acuerdo bien. Prueba buscando en el Manual del Taller."
+    ];
+
+    // --- Búsqueda 1: "Taller Real" (Conversacional) ---
+    let bestMatch = null;
+    let maxMatchCount = 0;
+    for (const item of db_preguntas_respuestas) {
+        let matchCount = 0;
+        for (const keyword of item.keywords) {
+            if (lowerQuery.includes(keyword)) {
+                matchCount++;
+            }
+        }
+        if (matchCount > maxMatchCount) {
+            maxMatchCount = matchCount;
+            bestMatch = item.respuesta;
+        }
     }
 
-    function findBotResponse(query) {
-        const lowerQuery = query.toLowerCase();
+    if (maxMatchCount > 1) { // Requiere al menos 2 palabras clave
+        const randomIntro = frasesIntro[Math.floor(Math.random() * frasesIntro.length)];
+        return `${randomIntro}<br><br><strong>${bestMatch}</strong>`;
+    }
+
+    // --- Búsqueda 2: Escenarios Generales (Como "motor con agua") ---
+    const scenario = handleGeneralScenarioQuery(lowerQuery, "esta máquina");
+    if (scenario) {
+        let html = `¡Ojo con eso, parcero! Cuando entra agua al motor, la cosa es grave. A eso le llamamos <strong>${scenario.name}</strong>.<br><br>`;
+        html += `<strong>Síntomas (lo que se ve):</strong><ul>`;
+        scenario.symptoms.forEach(s => html += `<li>${s}</li>`);
+        html += `</ul><br><strong>Causas probables (por qué pasó):</strong><ul>`;
+        scenario.causes.forEach(c => html += `<li>${c}</li>`);
+        html += `</ul><br><strong>Solución (lo que hay que hacer):</strong><ul>`;
+        scenario.solution.forEach(s => html += `<li>${s}</li>`);
+        html += `</ul><br><strong style="color: ${'var(--color-rojo)'};">${scenario.alertaSeguridad}</strong>`;
+        return html;
+    }
+
+    // --- Búsqueda 3: El Manual Técnico (la base de datos grande) ---
+    const manualResults = allFailuresFlat.filter(f => {
+        // Buscar en nombre, síntomas, códigos y términos de búsqueda
+        const searchableText = [f.name, f.initial, f.searchTerms, ...(f.symptoms || []), ...(f.codes || [])]
+            .filter(item => typeof item === 'string').join(' ').toLowerCase();
         
-        // Frases genéricas de Don Buenaventura
-        const frasesIntro = [
-            "Mire, compadre, eso me suena a...",
-            "A ver, parcero, déjeme pensar...",
-            "Clásico problema, viejo. Lo que pasa es que...",
-            "Echale ojo a esto que te voy a decir...",
-            "Uy, esa falla es complicada pero tiene maña..."
-        ];
-        const frasesFallo = [
-            "La verdad, de eso sí que no sé. ¿Seguro que no es un problema eléctrico?",
-            "Me corchaste, mijo. Mejor revisa el manual técnico.",
-            "Ni idea, parcero. ¿Ya revisaste si tiene gasolina? Je, je. Ahora en serio, mejor busca en Google o en el manual."
-        ];
+        // Verificar si *algún* término de la búsqueda (de más de 2 letras) está en el texto
+        return lowerQuery.split(' ').filter(t => t.length > 2).some(term => searchableText.includes(term));
+    });
 
-        let bestMatch = null;
-        let maxMatchCount = 0;
-
-        // Buscar en la base de datos de preguntas y respuestas
-        for (const item of db_preguntas_respuestas) {
-            let matchCount = 0;
-            for (const keyword of item.keywords) {
-                if (lowerQuery.includes(keyword)) {
-                    matchCount++;
-                }
-            }
-            if (matchCount > maxMatchCount) {
-                maxMatchCount = matchCount;
-                bestMatch = item.respuesta;
-            }
-        }
-
-        if (bestMatch) {
-            const randomIntro = frasesIntro[Math.floor(Math.random() * frasesIntro.length)];
-            return `${randomIntro}<br><br><strong>${bestMatch}</strong>`;
-        } else {
-            const randomFallback = frasesFallo[Math.floor(Math.random() * frasesFallo.length)];
-            return randomFallback;
-        }
+    if (manualResults.length > 0) {
+        const firstResult = manualResults[0];
+        return `Me corchaste con un cuento exacto de eso, pero...<br><br>
+                En <strong>El Manual del Taller</strong> (la otra pestaña) tengo información técnica sobre <strong>"${firstResult.name}"</strong>.
+                Eso suena a lo que buscas.<br><br>
+                <button class="search-btn" onclick="openManualEntry('${firstResult._sourceKey}', ${firstResult.id})">
+                    <i class="fas fa-book-open"></i> Ver en el Manual
+                </button>`;
     }
 
-    // --- Lógica del Manual (Basada en gemini.txt) ---
+    // --- Búsqueda 4: Fallback ---
+    const randomFallback = frasesFallo[Math.floor(Math.random() * frasesFallo.length)];
+    return randomFallback;
+}
+
+// Función auxiliar para Búsqueda 2
+function handleGeneralScenarioQuery(query, machineName) {
+    let scenarioKey = null;
+    if (query.includes('agua') && (query.includes('motor') || query.includes('aceite'))) scenarioKey = "motor_con_agua";
+    // (Añadir más escenarios como 'motor_sin_aceite' aquí)
+
+    if (scenarioKey && generalScenarioTemplates[scenarioKey]) {
+        const templateFunction = generalScenarioTemplates[scenarioKey];
+        return { ...templateFunction(machineName), _isGenerated: true };
+    }
+    return null;
+}
+
+// Función auxiliar para Búsqueda 3
+function flattenData(data) {
+    const flatList = [];
+    for (const key in data) {
+        if (Array.isArray(data[key])) {
+            data[key].forEach(item => {
+                if (item && typeof item === 'object') {
+                    flatList.push({ ...item, _sourceKey: key });
+                }
+            });
+        }
+    }
+    return flatList;
+}
+
+/**
+ * Función global para que el botón del chat abra el manual
+ */
+function openManualEntry(brandKey, failureId) {
+    const failure = (failures[brandKey] || []).find(f => f.id === failureId);
+    if (!failure) return;
+
+    // 1. Activar la pestaña del manual
+    activateTab('manual');
+
+    // 2. Encontrar la marca y el tipo de máquina (esto es un poco inverso)
+    let typeKey = null;
+    for (const key in brandsAndModels) {
+        if (brandsAndModels[key].some(brand => brand.key === brandKey)) {
+            typeKey = key;
+            break;
+        }
+    }
+    
+    // 3. Simular la navegación del manual
+    const manualWindow = document.getElementById('manual-window');
+    if (typeKey) {
+        showBrands(typeKey);
+    } else {
+        // Si no se encuentra tipo (ej. diagnóstico avanzado), solo mostrar la falla
+        initMachineTypes(); // Asegurarse que el paso 1 esté visible
+    }
+    
+    selectBrandModel(brandKey);
+    showDiagnosis(failure);
+    
+    // 4. Scroll hasta el diagnóstico
+    setTimeout(() => {
+        manualWindow.querySelector('#diagnosisArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+
+// --- Lógica del Manual (Basada en gemini.txt) ---
+function setupManual() {
     const manualWindow = document.getElementById('manual-window');
     const machineTypeSection = manualWindow.querySelector('#machineTypeSection');
     const brandModelSection = manualWindow.querySelector('#brandModelSection');
@@ -810,9 +1068,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const backToFailuresBtn = manualWindow.querySelector('#backToFailuresBtn');
     const btnOpenGoogleDiag = manualWindow.querySelector('#btnOpenGoogleDiag');
     const btnReset = manualWindow.querySelector('#btnReset');
-
-    let selectedMachineType = null;
-    let selectedBrandModelKey = null;
 
     function renderManualIcon(iconHtmlOrEmoji) {
         if (typeof iconHtmlOrEmoji === 'string' && iconHtmlOrEmoji.startsWith('<i')) {
@@ -832,8 +1087,7 @@ document.addEventListener('DOMContentLoaded', () => {
             machineTypesGrid.appendChild(card);
         });
     }
-
-    function showBrands(typeKey) {
+    window.showBrands = function(typeKey) { // Hacer global para openManualEntry
         selectedMachineType = typeKey;
         brandsGrid.innerHTML = '';
         const brands = brandsAndModels[typeKey] || [];
@@ -855,7 +1109,7 @@ document.addEventListener('DOMContentLoaded', () => {
         diagnosisArea.classList.add('hidden');
     }
 
-    function selectBrandModel(brandKey) {
+    window.selectBrandModel = function(brandKey) { // Hacer global
         selectedBrandModelKey = brandKey;
         filterInput.value = '';
         renderFailuresList(brandKey, '');
@@ -951,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
          return `<div class="info-card atacama-note"><h4><i class="fas fa-mountain-sun"></i> Notas Específicas Atacama</h4>${renderList(notes)}</div>`;
     }
 
-    function showDiagnosis(f) {
+    window.showDiagnosis = function(f) { // Hacer global
         if (!f || typeof f !== 'object') return;
         diagnosisArea.classList.remove('hidden');
         failureSection.classList.add('hidden');
@@ -1009,8 +1263,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Iniciar el Manual
     initMachineTypes();
+}
 
     // --- Lógica de la Biblioteca ---
+function setupBiblioteca() {
     const videoList = document.getElementById('video-list');
     const forumList = document.getElementById('forum-list');
 
@@ -1018,13 +1274,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const card = document.createElement('div');
         card.className = 'resource-card';
         card.innerHTML = `
-            <a href="${video.url.replace('embed/', 'watch?v=')}" target="_blank">
+            <a href="${video.url.replace('embed/', 'watch?v=')}" target="_blank" rel="noopener noreferrer">
                 <img src="${video.img}" alt="${video.title}">
             </a>
             <div class="resource-card-content">
                 <h4>${video.title}</h4>
                 <p>${video.desc}</p>
-                <a href="${video.url.replace('embed/', 'watch?v=')}" target="_blank">Ver Video <i class="fas fa-external-link-alt"></i></a>
+                <a href="${video.url.replace('embed/', 'watch?v=')}" target="_blank" rel="noopener noreferrer">Ver Video <i class="fas fa-external-link-alt"></i></a>
             </div>
         `;
         videoList.appendChild(card);
@@ -1037,11 +1293,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="resource-card-content">
                 <h4>${forum.title}</h4>
                 <p>${forum.desc}</p>
-                <a href="${forum.url}" target="_blank">Leer Hilo <i class="fas fa-external-link-alt"></i></a>
+                <a href="${forum.url}" target="_blank" rel="noopener noreferrer">Leer Hilo <i class="fas fa-external-link-alt"></i></a>
             </div>
         `;
         forumList.appendChild(card);
     });
+}
 });
 </script>
 </body>

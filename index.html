@@ -1,979 +1,409 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🛠️ Taller Don Buenaventura (API Edition)</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  :root {
-    --primary-color: #f5b74f; /* Naranja Minero */
-    --secondary-color: #1f2937; /* Azul Oscuro Base */
-    --background-color: #111827; /* Fondo General Muy Oscuro */
-    --panel-background: #0f172a; /* Paneles Laterales/Modales */
-    --card-background: #1e2632; /* Tarjetas Individuales */
-    --text-color: #e5e7eb; /* Texto Principal Blanco Roto */
-    --text-muted: #9ca3af; /* Texto Secundario Gris */
-    --border-color: #374151; /* Borde Suave */
-    --highlight-border: #4b5563; /* Borde Hover/Focus */
-    --danger-color: #ef4444; /* Rojo */
-    --success-color: #10b981; /* Verde */
-    --info-color: #3b82f6; /* Azul Info */
-    --gestion-color: #8b5cf6; /* Morado (para gestión) */
-    --advan-color: #f97316; /* Naranja Oscuro (para avanzado) */
-    --border-radius: 8px;
-    --box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
-    --transition-speed: 0.25s;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: var(--background-color);
-    color: var(--text-color);
-    min-height: 100vh;
-    display: flex;
-    font-size: 15px;
-    line-height: 1.6;
-    overflow: hidden; 
-  }
-  .app-layout { display: flex; width: 100%; height: 100vh; }
-  .sidebar {
-    width: 280px; background: var(--panel-background); padding: 20px; display: flex; flex-direction: column; gap: 15px; border-right: 1px solid var(--border-color); overflow-y: auto; transition: width var(--transition-speed);
-  }
-  .sidebar h1 {
-    color: var(--primary-color); font-size: 1.6rem; font-weight: 700; text-align: center; margin-bottom: 10px;
-  }
-  .sidebar h3 {
-      color: var(--primary-color); margin-bottom: 10px; margin-top: 15px; font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px;
-  }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 6px; background: var(--card-background); border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer; font-size: 0.9rem; transition: background var(--transition-speed), border-color var(--transition-speed); text-align: left; width: 100%;
-  }
-  .btn:hover {
-    background: var(--secondary-color); border-color: var(--highlight-border);
-  }
-   .btn:disabled {
-    opacity: 0.5; cursor: not-allowed;
-  }
-  .btn.primary {
-    background: var(--info-color); border-color: var(--info-color); color: #fff;
-  }
-  .btn.primary:hover { background: #2563eb; }
-  .btn i { width: 16px; text-align: center; }
-  .filters { display: grid; gap: 10px; }
-  input[type="search"], select, textarea {
-    width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--secondary-color); color: var(--text-color); font-size: 0.9rem;
-  }
-  #contextInput {
-    min-height: 100px;
-    font-family: Consolas, 'Courier New', monospace;
-    font-size: 0.85rem;
-  }
-  input[type="search"]:focus, select:focus, textarea:focus {
-    outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(245, 183, 79, 0.3);
-  }
-  .chip {
-    display: inline-block; padding: 4px 10px; border-radius: 999px; background: var(--secondary-color); color: var(--text-muted); font-size: 0.8rem; border: 1px solid var(--border-color);
-  }
-  .toggle-label {
-    display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; color: var(--text-muted);
-  }
-  .toggle-label input[type="checkbox"] { margin-right: 5px; }
-  .note {
-    background: var(--secondary-color); padding: 10px; border-radius: 6px; border-left: 4px solid var(--primary-color); color: var(--text-muted); font-size: 0.85rem; margin-top: 10px;
-  }
-  .main-content {
-    flex: 1; display: flex; flex-direction: column; overflow: hidden;
-  }
-  .main-header {
-    padding: 12px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: var(--panel-background); flex-shrink: 0;
-  }
-  #globalSearchInputHeader {
-    width: 350px; padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border-color); background: var(--secondary-color); color: var(--text-color);
-  }
-   #globalSearchInputHeader:focus {
-     outline: none; border-color: var(--primary-color); box-shadow: 0 0 0 2px rgba(245, 183, 79, 0.3);
-  }
-  .results-area {
-    padding: 20px; overflow-y: auto; flex-grow: 1;
-  }
-  .results-header {
-      display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--text-muted); font-size: 0.9rem;
-  }
-  .results-summary { display: flex; gap: 10px; }
-  .cards-grid {
-    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px;
-  }
-  .card {
-    background: var(--card-background); padding: 15px; border-radius: var(--border-radius); border: 1px solid var(--border-color); transition: transform var(--transition-speed), box-shadow var(--transition-speed); cursor: pointer; min-height: 120px; display: flex; flex-direction: column; position: relative; overflow: hidden;
-  }
-   .card:hover {
-    transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); border-color: var(--highlight-border);
-  }
-   .card h4 {
-    color: var(--primary-color); margin-bottom: 8px; font-size: 1.05rem; font-weight: 600; display: flex; align-items: center; gap: 8px;
-  }
-   .card h4 .icon { font-size: 1.5rem; line-height: 1; }
-   .card .muted { color: var(--text-muted); font-size: 0.9rem; flex-grow: 1; margin-bottom: 10px; }
-   .card .tags { margin-top: auto; display: flex; flex-wrap: wrap; gap: 5px; }
-   .card .tag { background: var(--panel-background); color: #a5b4fc; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; border: 1px solid var(--border-color); }
-   .card .tag.code-tag { background: #4b5563; color: #e0e7ff; }
-  .card.severity-high { border-left: 5px solid var(--danger-color); }
-  .card.severity-medium { border-left: 5px solid var(--warning-color); }
-  .card.severity-warning { border-left: 5px solid var(--warning-color); } 
-  .card.severity-low { border-left: 5px solid var(--info-color); }
-  .card.severity-success { border-left: 5px solid var(--success-color); }
-  .card.loading-card {
-      background: var(--secondary-color);
-      border-style: dashed;
-      justify-content: center;
-      align-items: center;
-      cursor: progress;
-      padding: 20px;
-  }
-  .card.loading-card h4 { color: var(--text-muted); margin: 0; }
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  .loader-icon {
-      font-size: 1.5rem;
-      color: var(--primary-color);
-      animation: spin 1.5s linear infinite;
-      margin-bottom: 10px;
-  }
-  .diagnosis-panel-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px;
-  }
-  .diagnosis-panel {
-    background: var(--panel-background); border: 1px solid var(--highlight-border); border-radius: var(--border-radius); padding: 25px; width: 100%; max-width: 850px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.6); position: relative; display: flex; flex-direction: column; gap: 15px; animation: fadeInModal 0.3s ease-out;
-  }
-  @keyframes fadeInModal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-  .diagnosis-panel h2 {
-      color: var(--primary-color); font-size: 1.5rem; margin-bottom: 0; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; display: flex; align-items: center; gap: 10px;
-  }
-   .diagnosis-panel h2 .icon { font-size: 1.8rem; line-height: 1; }
-   .diagnosis-panel .info-card {
-      background: var(--secondary-color); margin-bottom: 0; border-radius: 6px; padding: 15px; position: relative;
-  }
-   .diagnosis-panel .info-card h4 {
-      font-size: 1.1rem; margin-bottom: 8px; display: flex; align-items: center;
-   }
-   .diagnosis-panel .info-card h4 i { margin-right: 8px; width: 18px; text-align: center; }
-   .diagnosis-panel ul, .diagnosis-panel ol { margin-left: 15px; padding-left: 10px; }
-   .diagnosis-panel li { margin-bottom: 6px; font-size: 0.95rem; }
-   .diagnosis-panel p { font-size: 0.95rem; }
-   .diagnosis-panel pre { background: var(--background-color); font-size: 0.85em; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 4px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
-   .diagnosis-panel code { background: var(--card-background); }
-   .diagnosis-panel .close-btn {
-       position: absolute; top: 15px; right: 15px; background: var(--card-background); color: var(--text-color); border: 1px solid var(--border-color); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.2s; z-index: 10;
-   }
-   .diagnosis-panel .close-btn:hover { background: var(--secondary-color); }
-   .btn-ai-explain {
-       position: absolute; top: 10px; right: 10px; font-size: 0.75rem; padding: 3px 8px; background: var(--info-color); color: white; border: none; border-radius: 4px; cursor: pointer; opacity: 0.7; transition: opacity 0.2s;
-   }
-   .btn-ai-explain:hover { opacity: 1; background: #2563eb; }
-   .btn-ai-explain i { margin-right: 4px; }
-   .info-card.alert-safety { border-left-color: var(--danger-color); background: rgba(239, 68, 68, 0.1); color: #fecaca; }
-   .info-card.alert-safety h4 { color: var(--danger-color); }
-   .info-card.alert-engineer { border-left-color: var(--success-color); background: rgba(16, 185, 129, 0.1); color: #a7f3d0; }
-   .info-card.alert-engineer h4 { color: var(--success-color); }
-   .info-card.gestion-card { border-left-color: var(--gestion-color); }
-   .info-card.gestion-card h4 { color: var(--gestion-color); }
-   .info-card.specs-card { border-left-color: #06b6d4; }
-   .info-card.specs-card h4 { color: #06b6d4;}
-   .info-card.advanced-card { border-left-color: var(--advan-color); }
-   .info-card.advanced-card h4 { color: var(--advan-color); }
-   .info-card.codes-list { border-left-color: var(--info-color); }
-   .info-card.codes-list h4 { color: var(--info-color); }
-   .info-card.codes-list code { background: #374151; color: #a5b4fc; padding: 3px 6px; border-radius: 4px; border: 1px solid #4b5563; }
-   .atacama-note {
-    border-left-color: #facc15; background: #494917; color: #fde047; display: none; border: 1px solid #eab308;
-  }
-  .atacama-note h4 { color: #facc15; }
-  .diagnosis-panel.show-atacama .atacama-note { display: block; }
-  footer {
-    padding: 10px; text-align: center; font-size: 0.8rem; color: var(--text-muted); border-top: 1px solid var(--border-color); background: var(--panel-background); margin-top: auto; flex-shrink: 0;
-  }
-  .hidden { display: none; }
-  ::-webkit-scrollbar { width: 10px; height: 10px; }
-  ::-webkit-scrollbar-track { background: var(--secondary-color); border-radius: 5px; }
-  ::-webkit-scrollbar-thumb { background: var(--highlight-border); border-radius: 5px; border: 2px solid var(--secondary-color); }
-  ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
-  @media (max-width: 1024px) { .sidebar { width: 240px; } }
-  @media (max-width: 768px) {
-    body { flex-direction: column; overflow: auto; }
-    .app-layout { flex-direction: column; height: auto; }
-    .sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); height: auto; max-height: 40vh; overflow-y: auto; }
-    .main-header { padding: 10px 15px; flex-direction: column; gap: 10px; }
-    #globalSearchInputHeader { width: 100%; }
-    .results-area { padding: 15px; }
-    .cards-grid { grid-template-columns: 1fr; }
-    .diagnosis-panel-overlay { padding: 10px; }
-    .diagnosis-panel { width: 100%; max-height: 90vh; padding: 15px; }
-    .diagnosis-panel h2 { font-size: 1.3rem; }
-    .diagnosis-panel .info-card { padding: 12px; }
-    .diagnosis-panel .info-card h4 { font-size: 1rem; }
-    .action-buttons { flex-direction: column; gap: 10px; }
-    .search-btn { width: 100%; text-align: center; justify-content: center; }
-  }
-  @media print {
-    body { background: #fff; color: #000; padding: 0; font-size: 10pt; }
-    .app-layout, .sidebar, .main-header, .results-area, footer, .action-buttons, .close-btn, #btnOpenGoogleDiagModal, #copyDiagnosisBtn, #exportDiagnosisBtn, #printDiagnosisBtn { display: none !important; }
-    .diagnosis-panel-overlay { position: static; background: none; backdrop-filter: none; padding: 0; display: block !important; }
-    .diagnosis-panel { display: block !important; width: 100%; max-width: none; max-height: none; overflow: visible; box-shadow: none; border: none; padding: 0; animation: none; }
-    .info-card { background: #f8f9fa; color: #333; border-left-width: 3px; box-shadow: none; page-break-inside: avoid; margin-bottom: 15px; }
-    .alert-safety, .alert-engineer { background: #eee; color: #000; font-weight: normal; }
-    pre, code { background: #eee; color: #333; border: 1px solid #ccc; font-size: 9pt; word-wrap: break-word; white-space: pre-wrap; }
-    a { text-decoration: none; color: inherit; }
-    h2, h4 { color: #000; border-bottom: 1px solid #ccc; }
-    ul, ol { margin-left: 15px; padding-left: 5px; }
-    li { margin-bottom: 4px; }
-    .btn-ai-explain { display: none; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Científica y de Electricidad</title>
+    <style>
+        /* Estilos Generales */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        /* Estilos de Pestañas */
+        .tab-bar {
+            display: flex;
+            background-color: #eee;
+        }
+
+        .tab-link {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            background-color: #f9f9f9;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            color: #555;
+        }
+
+        .tab-link:hover {
+            background-color: #e9e9e9;
+        }
+
+        .tab-link.active {
+            background-color: #fff;
+            color: #007bff;
+            border-bottom: 3px solid #007bff;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* --- Calculadora Científica --- */
+        #display-container {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        #display {
+            width: calc(100% - 20px);
+            padding: 15px 10px;
+            font-size: 2.2em;
+            text-align: right;
+            border: none;
+            background-color: #f3f3f3;
+            border-radius: 8px;
+            color: #333;
+            box-sizing: border-box;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 18px;
+            font-size: 1.2em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #e0e0e0;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #d0d0d0;
+        }
+
+        .btn.operator {
+            background-color: #ff9f0a;
+            color: white;
+        }
+
+        .btn.operator:hover {
+            background-color: #e8910a;
+        }
+        
+        .btn.function {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn.function:hover {
+            background-color: #5a6268;
+        }
+
+        .btn.clear {
+            background-color: #d9534f;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn.clear:hover {
+            background-color: #c9302c;
+        }
+
+        .btn.equals {
+            background-color: #007bff;
+            color: white;
+            grid-column: span 2;
+        }
+
+        .btn.equals:hover {
+            background-color: #0056b3;
+        }
+        
+        .btn.zero {
+            grid-column: span 2;
+        }
+
+
+        /* --- Calculadora de Electricidad --- */
+        .calc-section {
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+        }
+        
+        .calc-section h3 {
+            margin-top: 0;
+            color: #007bff;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 5px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            flex: 0 0 120px;
+            font-weight: 500;
+        }
+
+        .form-group input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 1em;
+        }
+        
+        .form-group input[readonly] {
+            background-color: #eee;
+            font-weight: bold;
+        }
+
+        .calc-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .calc-buttons button {
+            flex: 1;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-calc {
+            background-color: #28a745;
+            color: white;
+        }
+        .btn-calc:hover {
+            background-color: #218838;
+        }
+        
+        .btn-clear-form {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-clear-form:hover {
+            background-color: #c82333;
+        }
+
+    </style>
 </head>
 <body>
-  <div class="app-layout">
-    <aside class="sidebar" id="sidebar">
-      <h1><i class="fas fa-wrench"></i> Don Buenaventura</h1>
 
-      <h3><i class="fas fa-filter"></i> Filtros y Contexto</h3>
-      <div class="filters">
-        <label for="globalSearchInputSidebar" class="small">Pregunta (Ej: Falla Kawasaki)</label>
-        <input id="globalSearchInputSidebar" type="search" placeholder="Escribe tu pregunta...">
-        
-        <label for="contextInput" class="small">Contexto (Pega aquí la materia de clase)</label>
-        <textarea id="contextInput" placeholder="Pega aquí el texto de tu informe, rúbrica o PDF..."></textarea>
-
-        <label for="typeFilter" class="small">Filtrar Manual Técnico</label>
-        <select id="typeFilter">
-          <option value="">-- Tipo de Maquinaria --</option>
-        </select>
-        
-        <button class="btn primary" id="btnAskAI"><i class="fas fa-robot"></i> Preguntar a Don B.</button>
-        <button class="btn" id="btnResetFilters"><i class="fas fa-undo"></i> Limpiar Filtros</button>
-      </div>
-
-      <h3><i class="fas fa-tools"></i> Herramientas</h3>
-      <button class="btn" id="btnShowAll"><i class="fas fa-list"></i> Mostrar Todo el Manual</button>
-      <label class="toggle-label"><input type="checkbox" id="toggleAtacama"> <span class="chip"><i class="fas fa-mountain-sun"></i> Modo Atacama</span></label>
-      
-      <h3><i class="fas fa-chart-line"></i> Análisis</h3>
-      <button class="btn" id="btnShowKPIs"><i class="fas fa-tachometer-alt"></i> KPIs y Predicción</button>
-      <button class="btn" id="btnShowDiagTech"><i class="fas fa-microscope"></i> Técnicas Avanzadas</button>
-
-      <h3><i class="fas fa-info-circle"></i> Info</h3>
-      <div class="note">
-        <p><strong>Total Registros (Manual):</strong> <span id="totalCount">--</span></p>
-        <p><strong>Modo Atacama:</strong> Muestra notas para condiciones desérticas.</p>
-      </div>
-      
-      <footer style="margin-top: auto; font-size: 0.8rem; color: #6b7280; text-align: center;">
-          v2.0 - API Edition
-      </footer>
-    </aside>
-
-    <main class="main-content">
-      <header class="main-header">
-        <input id="globalSearchInputHeader" type="search" placeholder="Buscar en el Manual Técnico (ej: 'inyector', 'P0087')...">
-        <div class="chips-display" style="display: flex; gap: 8px;">
-            <div class="chip" id="currentModeDisplay">Modo: Normal</div>
-            <div class="chip" id="loadedSourceDisplay">Fuente: Manual Local</div>
+    <div class="container">
+        <div class="tab-bar">
+            <div class="tab-link active" onclick="openTab(event, 'cientifica')">Científica</div>
+            <div class="tab-link" onclick="openTab(event, 'electricidad')">Electricidad</div>
         </div>
-      </header>
 
-      <div class="results-area">
-         <div class="results-header">
-             <div class="results-summary">
-                 <span class="chip"><i class="fas fa-exclamation-triangle"></i> <span id="foundCount">0</span> Resultados</span>
-                 <span class="chip"><i class="fas fa-car-side"></i> <span id="uniqueModels">0</span> Modelos</span>
-             </div>
-             <span>Taller de Don Buenaventura</span>
-         </div>
-         <div id="cardsGrid" class="cards-grid">
-             <template id="loadingCardTemplate">
-                <div class="card loading-card">
-                    <i class="fas fa-spinner loader-icon"></i>
-                    <h4>Consultando a Don B...</h4>
-                    <p class="muted">El viejo está pensando la respuesta para "<span class="loading-query"></span>"</p>
+        <div id="cientifica" class="tab-content active">
+            <div id="display-container">
+                <input type="text" id="display" readonly>
+            </div>
+            <div class="buttons">
+                <button class="btn function" onclick="appendToDisplay('Math.sin(')">sin</button>
+                <button class="btn function" onclick="appendToDisplay('Math.cos(')">cos</button>
+                <button class="btn function" onclick="appendToDisplay('Math.tan(')">tan</button>
+                <button class="btn function" onclick="appendToDisplay('Math.PI')">π</button>
+                <button class="btn operator" onclick="appendToDisplay('**')">^</button>
+                <button class="btn function" onclick="appendToDisplay('Math.log10(')">log</button>
+                <button class="btn function" onclick="appendToDisplay('Math.log(')">ln</button>
+                <button class="btn function" onclick="appendToDisplay('(')">(</button>
+                <button class="btn function" onclick="appendToDisplay(')')">)</button>
+                <button class="btn function" onclick="appendToDisplay('Math.sqrt(')">√</button>
+                <button class="btn" onclick="appendToDisplay('7')">7</button>
+                <button class="btn" onclick="appendToDisplay('8')">8</button>
+                <button class="btn" onclick="appendToDisplay('9')">9</button>
+                <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+                <button class="btn clear" onclick="clearDisplay()">C</button>
+                <button class="btn" onclick="appendToDisplay('4')">4</button>
+                <button class="btn" onclick="appendToDisplay('5')">5</button>
+                <button class="btn" onclick="appendToDisplay('6')">6</button>
+                <button class="btn operator" onclick="appendToDisplay('*')">*</button>
+                <button class="btn" onclick="backspace()">⌫</button>
+                <button class="btn" onclick="appendToDisplay('1')">1</button>
+                <button class="btn" onclick="appendToDisplay('2')">2</button>
+                <button class="btn" onclick="appendToDisplay('3')">3</button>
+                <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+                <button class="btn equals" onclick="calculateResult()">=</button>
+                <button class="btn zero" onclick="appendToDisplay('0')">0</button>
+                <button class="btn" onclick="appendToDisplay('.')">.</button>
+                <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+            </div>
+        </div>
+
+        <div id="electricidad" class="tab-content">
+            <div class="calc-section">
+                <h3>Ley de Ohm</h3>
+                <div class="form-group">
+                    <label for="voltaje-ohm">Voltaje (V):</label>
+                    <input type="number" id="voltaje-ohm" placeholder="Dejar en blanco para calcular">
                 </div>
-             </template>
-             
-             <div class="card"><h4>Bienvenido al Taller</h4><p class="muted">Usa el panel de la izquierda para hacer preguntas a Don Buenaventura, o usa la barra de búsqueda de arriba para filtrar el manual técnico.</p></div>
-         </div>
-      </div>
+                <div class="form-group">
+                    <label for="corriente-ohm">Corriente (I):</label>
+                    <input type="number" id="corriente-ohm" placeholder="Dejar en blanco para calcular">
+                </div>
+                <div class="form-group">
+                    <label for="resistencia-ohm">Resistencia (R):</label>
+                    <input type="number" id="resistencia-ohm" placeholder="Dejar en blanco para calcular">
+                </div>
+                <div class="calc-buttons">
+                    <button class="btn-calc" onclick="calculateOhm()">Calcular</button>
+                    <button class="btn-clear-form" onclick="clearOhm()">Limpiar</button>
+                </div>
+            </div>
 
-    </main>
-  </div>
+            <div class="calc-section">
+                <h3>Ley de Watt</h3>
+                <div class="form-group">
+                    <label for="potencia-watt">Potencia (P):</label>
+                    <input type="number" id="potencia-watt" placeholder="Dejar en blanco para calcular">
+                </div>
+                <div class="form-group">
+                    <label for="voltaje-watt">Voltaje (V):</label>
+                    <input type="number" id="voltaje-watt" placeholder="Dejar en blanco para calcular">
+                </div>
+                <div class="form-group">
+                    <label for="corriente-watt">Corriente (I):</label>
+                    <input type="number" id="corriente-watt" placeholder="Dejar en blanco para calcular">
+                </div>
+                <div class="calc-buttons">
+                    <button class="btn-calc" onclick="calculateWatt()">Calcular</button>
+                    <button class="btn-clear-form" onclick="clearWatt()">Limpiar</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
-  <div id="diagnosisPanelOverlay" class="diagnosis-panel-overlay">
-      <div id="diagnosisPanel" class="diagnosis-panel">
-          <button id="closeDiagnosisPanelBtn" class="close-btn" aria-label="Cerrar"><i class="fas fa-times"></i></button>
-          <h2 id="diagTitle"><span class="icon">?</span>Diagnóstico Detallado</h2>
-          <div id="diagContent">
-              </div>
-          <div class="action-buttons" style="margin-top: 15px;">
-              <a id="btnOpenGoogleDiagModal" class="btn primary" href="#" target="_blank" rel="noopener noreferrer"><i class="fab fa-google"></i> Buscar en Google</a>
-              <button class="btn" id="copyDiagnosisBtn"><i class="fas fa-copy"></i> Copiar Info</button>
-              <button class="btn" id="exportDiagnosisBtn"><i class="fas fa-file-export"></i> Exportar Falla</button>
-              <button class="btn" id="printDiagnosisBtn"><i class="fas fa-print"></i> Imprimir</button>
-          </div>
-      </div>
-  </div>
+    <script>
+        // --- Lógica de Pestañas ---
+        function openTab(evt, tabName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tab-content");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tab-link");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+        
+        // --- Lógica de Calculadora Científica ---
+        const display = document.getElementById('display');
 
-<script>
-/* ========================================================================= */
-/* TALLER DE DON BUENAVENTURA - LÓGICA (v2.0 - API Edition)                  */
-/* ========================================================================= */
+        function appendToDisplay(value) {
+            display.value += value;
+        }
 
-// --- BASE DE DATOS DEL MANUAL (Fallas, Modelos, etc. de gemini.txt) ---
-const machineTypes = { /* (Toda la data de machineTypes va aquí) */ 
-    camioneta: { name: "Camioneta Minera", icon: "🛻", description: "Hilux, Ranger, F-150..." },
-    retroexcavadora: { name: "Retroexcavadora", icon: "🚜", description: "Komatsu, CAT, JD, JCB..." },
-    excavadora: { name: "Excavadora", icon: "<i class='fas fa-mountain-city'></i>", description: "CAT, Komatsu, Volvo, Hitachi..." },
-    cargador: { name: "Cargador Frontal", icon: "<i class='fas fa-cubes-stacked'></i>", description: "CAT, Komatsu, Volvo, Kawasaki..." },
-    dumper: { name: "Camión Minero", icon: "<i class='fas fa-truck-monster'></i>", description: "CAT, Komatsu, Belaz, Volvo..." },
-    bulldozer: { name: "Bulldozer", icon: "<i class='fas fa-tractor'></i>", description: "CAT, Komatsu, Liebherr..." },
-    motoniveladora: { name: "Motoniveladora", icon: "<i class='fas fa-road'></i>", description: "CAT, Komatsu, JD..." },
-    pala: { name: "Pala Hidráulica/Eléctrica", icon: "<i class='fas fa-person-digging'></i>", description: "CAT, Komatsu, Liebherr, Bucyrus..." },
-    perforadora: { name: "Perforadora Rotativa", icon: "<i class='fas fa-bore-hole'></i>", description: "Sandvik, Atlas Copco..." },
-    compactador: { name: "Compactador Vibratorio", icon: "<i class='fas fa-road-roller'></i>", description: "BOMAG, CAT, Hamm..." },
-    tbm: { name: "Tuneladora (TBM)", icon: "<i class='fas fa-train-tunnel'></i>", description: "Herrenknecht..." },
-    dragalina: { name: "Dragalina", icon: "<i class='fas fa-ship'></i>", description: "Bucyrus..." },
-    spreader: { name: "Spreader (Extensor)", icon: "<i class='fas fa-truck-loading'></i>", description: "TAKRAF..." },
-    reclaimer: { name: "Reclaimer (Recuperador)", icon: "<i class='fas fa-recycle'></i>", description: "Sandvik..." },
-    shiploader: { name: "Ship Loader (Cargador Barcos)", icon: "<i class='fas fa-anchor'></i>", description: "Siemens..." },
-    harvester: { name: "Harvester (Forestal)", icon: "<i class='fas fa-tree'></i>", description: "John Deere..." },
-    forwarder: { name: "Forwarder (Forestal)", icon: "<i class='fas fa-truck-pickup'></i>", description: "Caterpillar..." },
-    cisterna: { name: "Camión Cisterna", icon: "<i class='fas fa-gas-pump'></i>", description: "Mercedes, Volvo, Scania..." },
-    zanjadora: { name: "Zanjadora", icon: "<i class='fas fa-mound'></i>", description: "Vermeer, Trencor..." },
-    planta_asfalto: { name: "Planta de Asfalto", icon: "<i class='fas fa-industry'></i>", description: "Marini, Astec..." },
-    compresor: { name: "Compresor de Aire", icon: "<i class='fas fa-compress'></i>", description: "Atlas Copco, IR..." },
-    generador: { name: "Generador Diesel", icon: "<i class='fas fa-bolt'></i>", description: "CAT, Cummins..." },
-    diagnostico: { name: "Métodos Diagnóstico", icon: "<i class='fas fa-stethoscope'></i>", description:"Vibraciones, Aceite, Termografía..."}
-};
-const brandsAndModels = { /* (Toda la data de brandsAndModels va aquí) */ 
-    camioneta: [
-        { key: "hilux", name: "Toyota Hilux", icon: "🛻", models: ["2.4L", "2.8L Diesel"] },
-        { key: "ranger", name: "Ford Ranger", icon: "🛻", models: ["3.2L", "2.0L Bi-Turbo"] },
-        { key: "l200", name: "Mitsubishi L200", icon: "🛻", models: ["2.4L MIVEC"] },
-        { key: "np300", name: "Nissan NP300/Navara", icon: "🛻", models: ["2.3L Bi-Turbo"] },
-        { key: "amarok", name: "Volkswagen Amarok", icon: "🛻", models: ["2.0L TDI", "3.0L V6 TDI"] },
-        { key: "f150", name: "Ford F-150 Raptor", icon: "🛻", models: ["3.5L Ecoboost"] },
-        { key: "ram1500", name: "RAM 1500", icon: "🛻", models: ["3.0L Ecodiesel"] },
-    ],
-    retroexcavadora: [
-        { key: "komatsu_wb", name: "Komatsu WB93/97", icon: "🚜", models: ["WB93R-5", "WB97"] },
-        { key: "cat_retro", name: "CAT 416-450", icon: "🚜", models: ["416E", "420F", "430F", "446", "450"] },
-        { key: "jcb_3cx", name: "JCB 3CX/4CX", icon: "🚜", models: ["3CX", "4CX"] },
-        { key: "case_580", name: "Case 580/590", icon: "🚜", models: ["580N", "590SN"] },
-        { key: "jd_retro", name: "John Deere", icon: "🚜", models: ["310SL", "310L"] },
-    ],
-    excavadora: [
-        { key: "cat_exc", name: "CAT 320/336", icon: "<i class='fas fa-mountain-city'></i>", models: ["320D", "320E", "320F", "336F/GC"] },
-        { key: "komatsu_exc", name: "Komatsu PC200/300", icon: "<i class='fas fa-mountain-city'></i>", models: ["PC200-8", "PC210LC-10", "PC300-8"] },
-        { key: "hitachi_exc", name: "Hitachi ZX200/350/470", icon: "<i class='fas fa-mountain-city'></i>", models: ["ZX200-5G", "ZX350", "ZX470"] },
-        { key: "volvo_exc", name: "Volvo EC210/220/240", icon: "<i class='fas fa-mountain-city'></i>", models: ["EC210B", "EC220D", "EC240C"] },
-        { key: "doosan_exc", name: "Doosan", icon: "<i class='fas fa-mountain-city'></i>", models: ["DX300", "DX500"] },
-    ],
-     cargador: [
-        { key: "cat_loader", name: "CAT 950-994", icon: "<i class='fas fa-cubes-stacked'></i>", models: ["950H", "966H", "972H", "994K"] },
-        { key: "komatsu_loader", name: "Komatsu WA Series", icon: "<i class='fas fa-cubes-stacked'></i>", models: ["WA380-6", "WA900", "WA1200"] },
-        { key: "volvo_loader", name: "Volvo L120-L350", icon: "<i class='fas fa-cubes-stacked'></i>", models: ["L120F", "L150G", "L350H"] },
-        { key: "liebherr_loader", name: "Liebherr L586", icon: "<i class='fas fa-cubes-stacked'></i>", models: ["L586 XPower"] },
-        { key: "kawasaki_loader", name: "Kawasaki", icon: "<i class='fas fa-cubes-stacked'></i>", models: ["85Z", "95Z"] },
-        { key: "hyundai_loader", name: "Hyundai HL", icon: "<i class='fas fa-cubes-stacked'></i>", models: ["HL850", "HL960"] },
-    ],
-     dumper: [
-         { key: "cat_dumper", name: "CAT Dumper", icon: "<i class='fas fa-truck-monster'></i>", models: ["777D/F", "785D", "793F", "797F (Mecánico)", "740B (Articulado)"] },
-         { key: "komatsu_dumper", name: "Komatsu Dumper", icon: "<i class='fas fa-charging-station'></i>", models: ["HD785-7 (Mecánico)", "930E", "980E (Eléctrico)"] },
-         { key: "volvo_dumper", name: "Volvo Dumper", icon: "<i class='fas fa-truck-moving'></i>", models: ["A40G (Articulado)"] },
-         { key: "liebherr_dumper", name: "Liebherr Dumper", icon: "<i class='fas fa-charging-station'></i>", models: ["T284 (Eléctrico)"] },
-         { key: "belaz_dumper", name: "Belaz Dumper", icon: "<i class='fas fa-truck-monster'></i>", models: ["7530", "7560", "75710"] },
-     ],
-     bulldozer: [
-        { key: "cat_dozer", name: "CAT D9/D11", icon: "<i class='fas fa-tractor'></i>", models: ["D9T", "D11T", "D11R"] },
-        { key: "komatsu_dozer", name: "Komatsu D275/D475", icon: "<i class='fas fa-tractor'></i>", models: ["D275A", "D475A"] },
-        { key: "liebherr_dozer", name: "Liebherr PR776", icon: "<i class='fas fa-tractor'></i>", models: ["PR776 (Hidrostático)"] },
-     ],
-     motoniveladora: [
-         { key: "cat_grader", name: "CAT 16M/24M/140M3", icon: "<i class='fas fa-road'></i>", models: ["16M", "24M", "140M3"] },
-         { key: "komatsu_grader", name: "Komatsu GD955", icon: "<i class='fas fa-road'></i>", models: ["GD955"] },
-         { key: "jd_grader", name: "John Deere Grader", icon: "<i class='fas fa-road'></i>", models: ["872GP"] },
-     ],
-     pala: [
-        { key: "cat_shovel", name: "CAT 6060/6090", icon: "<i class='fas fa-person-digging'></i>", models: ["6060FS", "6090FS"] },
-        { key: "komatsu_shovel", name: "Komatsu PC8000", icon: "<i class'fas fa-person-digging'></i>", models: ["PC8000-6", "PC8000-11"] },
-        { key: "liebherr_shovel", name: "Liebherr R9800", icon: "<i class='fas fa-person-digging'></i>", models: ["R9800"] },
-        { key: "hitachi_shovel", name: "Hitachi EX5600/EX8000", icon: "<i class='fas fa-person-digging'></i>", models: ["EX5600-7", "EX8000-6"] },
-        { key: "bucyrus_shovel", name: "Bucyrus Electric Shovel", icon: "<i class='fas fa-plug-circle-bolt'></i>", models: ["495HR"] },
-     ],
-     perforadora: [ { key: "sandvik_drill", name: "Sandvik Drill", icon: "<i class='fas fa-bore-hole'></i>", models: ["DX800"] }, { key: "atlas_drill", name: "Atlas Copco Drill", icon: "<i class='fas fa-bore-hole'></i>", models: ["ROC L8"] } ],
-     compactador: [ { key: "bomag_compactor", name: "BOMAG Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["BW211D-50", "BW226DH-5"] }, { key: "cat_compactor", name: "CAT Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["CS74B"] }, { key: "hamm_compactor", name: "Hamm Compactor", icon: "<i class='fas fa-road-roller'></i>", models: ["HD14VV"] } ],
-     tbm: [ { key: "herrenknecht_tbm", name: "Herrenknecht TBM", icon: "<i class'fas fa-train-tunnel'></i>", models: ["EPB Series"] } ],
-     dragalina: [ { key: "bucyrus_dragline", name: "Bucyrus Dragline", icon: "<i class='fas fa-ship'></i>", models: ["495HR"] } ],
-     spreader: [ { key: "takraf_spreader", name: "TAKRAF Spreader", icon: "<i class='fas fa-truck-loading'></i>", models: ["SRs Series"] } ],
-     reclaimer: [ { key: "sandvik_reclaimer", name: "Sandvik Reclaimer", icon: "<i class='fas fa-recycle'></i>", models: ["RR1440"] } ],
-     shiploader: [ { key: "siemens_shiploader", name: "Siemens Ship Loader", icon: "<i class='fas fa-anchor'></i>", models: ["Portalink"] } ],
-     harvester: [ { key: "jd_harvester", name: "John Deere Harvester", icon: "<i class='fas fa-tree'></i>", models: ["1270G"] } ],
-     forwarder: [ { key: "cat_forwarder", name: "CAT Forwarder", icon: "<i class='fas fa-truck-pickup'></i>", models: ["545"] } ],
-     cisterna: [ { key: "mb_cisterna", name: "Mercedes-Benz Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["Actros 3346"] }, { key: "volvo_cisterna", name: "Volvo Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["FH 540"] }, { key: "scania_cisterna", name: "Scania Cisterna", icon: "<i class='fas fa-gas-pump'></i>", models: ["R 450"] } ],
-     zanjadora: [ { key: "vermeer_trencher", name: "Vermeer Trencher", icon: "<i class='fas fa-mound'></i>", models: ["T655"] }, { key: "trencor_trencher", name: "Trencor Trencher", icon: "<i class='fas fa-mound'></i>", models: ["1660"] } ],
-     planta_asfalto: [ { key: "marini_asphalt", name: "Marini Asphalt Plant", icon: "<i class='fas fa-industry'></i>", models: ["MP 176"] }, { key: "astec_asphalt", name: "Astec Asphalt Plant", icon: "<i class='fas fa-industry'></i>", models: ["Six Pack"] } ],
-     compresor: [ { key: "atlas_compressor", name: "Atlas Copco Compressor", icon: "<i class='fas fa-compress'></i>", models: ["XAS 185"] }, { key: "ir_compressor", name: "Ingersoll Rand Compressor", icon: "<i class='fas fa-compress'></i>", models: ["XP825"] } ],
-     generador: [ { key: "cat_gen", name: "CAT Generator", icon: "<i class='fas fa-bolt'></i>", models: ["3516B"] }, { key: "cummins_gen", name: "Cummins Generator", icon: "<i class'fas fa-bolt'></i>", models: ["QSK60 Series"] } ],
-     diagnostico: [{ key: "diagnostico_avanzado", name: "Métodos de Análisis", models: ["Vibraciones", "Termografía", "Análisis Aceite"] }],
-};
-const failures = { /* (Toda la data de failures de gemini.txt va aquí) */ 
-    hilux: [
-        { id: 101, name: "Sistema Inyección Diesel", initial: "Pérdida de potencia, humo negro/blanco, arranque difícil.", modelosAplicables: ["Toyota Hilux 2.4L/2.8L"], alertaSeguridad: "No manipular inyectores con motor en marcha (alta presión).", symptoms: ["Pérdida potencia progresiva", "Humo negro (acelerar)", "Humo blanco (arranque frío)", "Consumo >12L/100km", "Arranque difícil frío", "Ralentí inestable"], causes: ["Inyectores obstruidos/desgastados", "Filtro combustible saturado", "Bomba alta presión (HP) defectuosa", "Sensor MAF sucio", "Válvula EGR carbonizada", "Turbo con juego excesivo", "Combustible contaminado"], diagnosticSteps: ["1. Escanear códigos OBD2.", "2. Verificar presión riel común (1350-1800 bar).", "3. Prueba retorno inyectores (<1.5L/min total).", "4. Medir resistencia inyectores (0.3-0.5 ohms).", "5. Verificar señal MAF (2.5-3.5V ralentí).", "6. Inspeccionar juego turbo (<0.05mm radial)."], solution: ["Limpieza/reemplazo inyectores", "Cambio filtro combustible", "Reemplazo bomba HP", "Limpieza MAF/EGR", "Reparación/reemplazo turbo", "Calibración con escáner Toyota"], costoEstimado: "US$ 100 (filtro) - US$ 3,000+ (inyectores/bomba)", searchTerms: "toyota hilux diesel inyector perdida potencia humo negro", codes: ["P0087", "P0093", "P0191", "P0201-P0204", "P2146"], datoIngeniero: "La presión Common Rail en Hilux es muy alta, cualquier contaminación afecta el rendimiento.", prevention: ["Cambio de combustible cada 6 meses si no se usa", "Usar aditivo limpiador cada 10,000 km", "Evitar quedarse sin combustible", "Calentar motor antes de exigir potencia máxima", "Cambiar filtro combustible cada 20,000 km"] },
-        { id: 102, name: "Transmisión Automática", initial: "Cambios bruscos, deslizamiento, sobrecalentamiento.", modelosAplicables: ["Toyota Hilux (Automática)"], symptoms: ["Golpe al cambiar P->D o R", "Deslizamiento en subidas", "No entra marcha después de calentar", "Temperatura ATF >120°C", "Ruido zumbido"], causes: ["Nivel bajo ATF", "Filtro ATF obstruido", "Solenoides cambio defectuosos", "Clutch desgastado", "Módulo TCM fallando", "Enfriador ATF tapado"], diagnosticSteps: ["1. Verificar nivel ATF (motor caliente, neutro).", "2. Revisar color/olor ATF (rojo limpio vs café quemado).", "3. Medir temperatura con escáner.", "4. Prueba presión línea (10-12 bar).", "5. Escanear códigos TCM.", "6. Prueba stall (<2500 RPM)."], solution: ["Cambio ATF + filtro (usar Toyota ATF WS)", "Reemplazo solenoides", "Limpieza enfriador", "Overhaul si hay daño interno"], costoEstimado: "US$ 200 (cambio aceite) - US$ 4,000 (Overhaul)", searchTerms: "transmision automatica hilux cambios bruscos patina", codes: ["P0734", "P0750", "P0841", "P0715"], prevention:["Cambio ATF+filtro cada 60,000 km", "Usar exclusivamente Toyota ATF WS"] },
-        { id: 110, name: "Chasis Fisurado (Zona Trasera)", initial:"Ruido ('clack') al pasar baches, posible desnivel.", modelosAplicables: ["Toyota Hilux"], alertaSeguridad:"Inspección estructural URGENTE. Riesgo de colapso.", symptoms:["Ruido estructural", "Desnivel caja carga", "Fisuras visibles cerca soportes ballestas"], causes:["Fatiga material por sobrecarga/torsión constante", "Corrosión"], diagnosticSteps:["1. Limpieza profunda chasis.", "2. Inspección visual detallada (especialmente sobre eje trasero).", "3. Prueba líquidos penetrantes si se sospecha fisura fina."], solution:["Reparación estructural por soldador calificado (seguir procedimiento fabricante)", "Instalar kit refuerzo chasis"], costoEstimado:"US$ 500 - $3,000+", searchTerms:"chasis fisurado hilux reparacion", codes:[], prevention:["No sobrecargar", "Inspección chasis cada 20,000 km"] }
-    ],
-    ranger: [
-        { id: 201, name: "Enfriador EGR Fisurado (3.2L)", initial: "Pérdida de refrigerante, riesgo sobrecalentamiento.", modelosAplicables: ["Ford Ranger 3.2L"], alertaSeguridad: "Verificar nivel refrigerante. No operar si recalienta.", symptoms:["Baja nivel refrigerante sin fuga visible", "Humo blanco (si fuga es grande)", "Sobrecalentamiento"], causes:["Fisura interna enfriador EGR"], diagnosticSteps:["1. Prueba presión sistema enfriamiento.", "2. Verificar si hay refrigerante en admisión/escape.", "3. Desmontar e inspeccionar enfriador EGR."], solution:["Reemplazo del enfriador EGR"], costoEstimado:"US$ 400 - $800", searchTerms: "ford ranger 3.2 egr cooler leak perdida refrigerante", codes:["P0401", "P0402"] },
-        { id: 107, name: "Inyectores con Fugas Internas (3.2L)", initial: "Arranque difícil, humo blanco, nivel aceite SUBE.", modelosAplicables: ["Ford Ranger 3.2L"], alertaSeguridad: "⚠️ Si nivel aceite sube, ¡NO ARRANCAR! Riesgo motor desbocado.", symptoms: ["Arranque difícil (especialmente caliente)", "Humo blanco excesivo", "Nivel aceite sube", "Aceite huele a diesel", "Ralentí inestable"], causes: ["Sellos internos inyector desgastados (Delphi)", "Alto kilometraje (+150k km)"], diagnosticSteps: ["1. ¡Verificar nivel y OLOR aceite!", "2. Prueba retorno inyectores.", "3. Escanear códigos.", "4. Análisis aceite (dilución)."], solution: ["Reemplazo URGENTE inyectores fugando", "Cambio aceite+filtro", "Usar inyectores Bosch (opcional, más fiables)"], costoEstimado: "US$ 400 - US$ 700 por inyector", searchTerms: "inyector ford ranger 3.2 fuga interna nivel aceite sube", codes: ["P0201-P0205", "P0267"], prevention:["Verificar nivel aceite frecuentemente", "Cambio filtro combustible según pauta"] }
-    ],
-    f150: [
-        { id: 901, name: "Turbos EcoBoost - Enfriamiento", initial:"Pérdida potencia altas RPM, silbido agudo, humo.", modelosAplicables:["Ford F-150 Raptor 3.5L"], alertaSeguridad:"Riesgo daño turbo si sobrecalienta.", symptoms:["Pérdida potencia", "Silbido", "Humo blanco/azul", "Consumo aceite", "Sobrecalentamiento (arena)"], causes:["Intercooler obstruido (polvo)", "Wastegates carbonizadas", "Aceite incorrecto (Usar 5W-50)", "Juntas turbo", "Enfriamiento insuficiente"], diagnosticSteps:["1. Medir presión boost (1.8-2.0 bar).", "2. Verificar wastegates.", "3. Inspeccionar intercooler (aceite).", "4. Escanear códigos."], solution:["Limpieza intercooler", "Reemplazo juntas", "Actualizar software PCM", "Intercooler mejorado"], costoEstimado:"US$ 200 (limpieza) - $1,500+ (intercooler)", searchTerms:"ford f150 raptor ecoboost perdida potencia turbo", codes:["P0299", "P0234"], prevention:["Limpieza intercooler cada 20k km (minería)"], atacamaNotes:"Requiere intercooler de mayor capacidad para altitud y calor." }
-    ],
-    ram1500: [
-        { id: 951, name: "Sistema EGR EcoDiesel", initial:"Pérdida potencia progresiva, consumo alto, regeneraciones DPF frecuentes.", modelosAplicables:["RAM 1500 3.0L Ecodiesel"], symptoms:["Pérdida potencia", "Consumo alto", "Regeneraciones DPF", "Humo gris"], causes:["Enfriador EGR obstruido", "Válvula EGR trabada", "Software"], diagnosticSteps:["1. Medir presión diferencial EGR.", "2. Medir temp. gases EGR.", "3. Analizar gases pre/post EGR.", "4. Escanear códigos."], solution:["Limpieza ultrasónica cooler EGR", "Reprogramación ECU", "Reemplazo válvula EGR", "EGR delete (solo off-road)"], costoEstimado:"US$ 300 (limpieza) - $1,000 (reemplazo)", searchTerms:"ram 1500 ecodiesel egr cooler falla", codes:["P0401", "P0404"], atacamaNotes:"La baja humedad y polvo fino pueden acelerar obstrucción. Limpieza preventiva cada 40k km." }
-    ],
-    komatsu_wb: [
-        { id: 201, name: "Bomba Hidráulica Tándem", initial:"Movimientos lentos, cargador sin fuerza, ruido bomba.", modelosAplicables: ["WB93R-5", "WB97"], alertaSeguridad: "Alta presión hidráulica.", symptoms: ["Movimientos lentos (brazo/cargador)", "Ruido cavitación/chillido", "Temperatura aceite >85°C", "Espuma aceite"], causes: ["Desgaste interno bomba (A o B)", "Filtro succión colapsado", "Aceite incorrecto/viejo", "Aire en sistema", "Válvula alivio mal calibrada"], diagnosticSteps: ["1. Medir presiones (Implementos: 3135 PSI, Dirección: 2175 PSI).", "2. Verificar caudal (44 L/min c/u @ 2200 RPM).", "3. Medir temp. aceite.", "4. Inspeccionar filtro succión/retorno.", "5. Verificar nivel aceite."], solution: ["Overhaul/reemplazo bomba tándem", "Cambio aceite (Komatsu Genuine/ISO 46)", "Cambio filtro succión", "Calibrar válvulas", "Limpieza tanque", "Purgar aire"], costoEstimado: "US$ 3,000 (Overhaul) - US$ 9,000 (Nueva)", searchTerms: "komatsu wb93r bomba hidraulica lenta ruido", codes: ["E04"] }
-    ],
-    jd_retro: [
-        { id: 2301, name: "Convertidor de Torque Slippage", initial:"RPM suben pero máquina no avanza o lo hace lentamente.", modelosAplicables:["John Deere 310SL/310L"], alertaSeguridad:"Sobrecalentamiento transmisión crítico.", symptoms:["RPM sube sin avance", "Temperatura transmisión >115°C", "Olor a aceite quemado", "Pérdida fuerza en pendiente"], causes:["Desgaste interno convertidor", "Baja presión clutch", "Filtro/refrigeración transmisión insuficiente", "Aceite bajo/quemado"], diagnosticSteps:["1. Prueba stall (No debe exceder 2200 RPM).", "2. Medir presión clutch/modulación.", "3. Análisis espectroscópico aceite transmisión.", "4. Verificar enfriador."], solution:["Overhaul/reemplazo convertidor de torque", "Upgrade kit refrigeración transmisión", "Cambio aceite (JD Hy-Gard) + filtro"], costoEstimado:"US$ 3,500 - $6,000 (Convertidor)", searchTerms:"john deere 310sl torque converter slippage patina", codes:[], prevention:["Análisis aceite cada 500h", "Cambio filtro cada 1000h"] }
-    ],
-     cat_retro: [
-        { id: 203, name: "Bomba Hidráulica Pistones", initial:"Movimientos lentos, pérdida fuerza, ruido bomba.", modelosAplicables: ["416E", "420F", "430F", "446", "450"], symptoms: ["Lentitud general", "Sin fuerza excavación", "Ruido chillón/golpeteo", "Aceite caliente (>90°C)", "Espuma aceite"], causes: ["Desgaste interno bomba", "Filtro hidráulico saturado", "Aceite incorrecto/viejo (Usar HYDO Adv 10)", "Cavitación", "Válvula alivio mal calibrada", "Acople bomba-motor"], diagnosticSteps: ["1. Medir presión principal (3000-3600 PSI).", "2. Medir presión piloto (500-700 PSI).", "3. Verificar temp. aceite.", "4. Inspeccionar filtros (partículas metal).", "5. Prueba carga.", "6. Verificar RPM motor."], solution: ["Overhaul/reemplazo bomba", "Cambio aceite (CAT HYDO Adv 10) + filtros", "Limpieza tanque", "Purgar aire", "Calibrar válvula alivio"], costoEstimado: "US$ 3,000 (Overhaul) - US$ 10,000 (Nueva)", searchTerms: "caterpillar 416e 420f bomba hidraulica lenta ruido", codes: ["094-03", "100-03"], prevention:["Cambio aceite cada 2000h", "Filtros cada 500h", "Análisis aceite cada 1000h"] }
-     ],
-     hitachi_exc: [
-        { id: 401, name: "Hydromaster Deriva Brazos", initial:"Brazos caen lentamente o pierden posición bajo carga.", modelosAplicables:["Hitachi ZX350/ZX470"], alertaSeguridad:"Riesgo de inestabilidad de implementos.", symptoms:["Brazos bajan lentamente", "Pérdida de posición bajo carga", "Sobrecalentamiento hidráulico", "Movimientos no comandados"], causes:["Válvulas de control con leakage (desgaste de spools)", "Sellos internos dañados", "Acumulación de presión residual"], diagnosticSteps:["1. Prueba de estanqueidad válvulas (Máximo 50 bar en 5 min).", "2. Termografía válvulas de control.", "3. Prueba de deriva en reposo."], solution:["Rectificado bancadas válvulas", "Kit sellos alta temperatura", "Actualización software control hidráulico"], costoEstimado:"US$ 5,000 - $15,000", searchTerms:"hitachi zx deriva brazos leakage hidromaster", codes:[] }
-     ],
-     doosan_exc: [
-        { id: 402, name: "Motor Diesel - Problemas Inyección", initial:"Arranque difícil en frío, humo negro.", modelosAplicables:["Doosan DX300/DX500"], symptoms:["Arranque difícil frío", "Tirones al acelerar", "Humo negro intermitente", "Consumo elevado"], causes:["Inyectores fuera de calibración", "Sensor temp/presión faulty", "Presión riel inestable", "Bomba HP"], diagnosticSteps:["1. Analizar forma onda inyectores.", "2. Probar presión riel en tiempo real.", "3. Verificación sensores temperatura/presión."], solution:["Calibración dinámica inyectores", "Limpieza ultrasónica riel común", "Actualización firmware ECU"], costoEstimado:"US$ 500 - $3,000", searchTerms:"doosan dx hitachi zx inyeccion electronica falla humo negro", codes:[] }
-     ],
-     kawasaki_loader: [
-        { id: 501, name: "Transmisión KES - Fallas Electrónicas", initial:"No cambia automáticamente, modo seguro, error display.", modelosAplicables:["Kawasaki 85Z/95Z"], symptoms:["Display error transmisión", "No cambia automáticamente", "Se queda en una marcha", "Modo seguro activado"], causes:["ECU transmisión (falla interna)", "Sensores velocidad (erráticos)", "Cableado/harness dañado", "Solenoides"], diagnosticSteps:["1. Escaneo profundo ECU transmisión.", "2. Verificación sensores velocidad.", "3. Prueba actuación solenoides."], solution:["Reprogramación completa KES", "Reemplazo harness transmisión", "Kit upgrade sensores velocidad", "Reemplazo ECU"], costoEstimado:"US$ 2,000 - $8,000", searchTerms:"kawasaki 85z transmision kes falla electronica", codes:[] }
-     ],
-     hyundai_loader: [
-        { id: 502, name: "Dirección - Bomba Orbital Ruidosa", initial:"Dirección pesada a bajas RPM, ruido bomba, fugas.", modelosAplicables:["Hyundai HL850/HL960"], symptoms:["Dirección pesada bajas RPM", "Ruido bomba dirección", "Fugas crónicas en cilindros", "Volante con juego excesivo"], causes:["Bomba dirección dañada (desgaste)", "Cilindros con fugas", "Presión baja"], diagnosticSteps:["1. Medición presión sistema (180-220 bar).", "2. Análisis caudal bomba dirección.", "3. Inspección fugas cilindros."], solution:["Overhaul/reemplazo bomba dirección orbital", "Kit reparación cilindros dirección", "Actualización sistema de filtrado"], costoEstimado:"US$ 1,500 - $5,000", searchTerms:"hyundai hl850 direccion pesada ruido bomba orbital", codes:[] }
-     ],
-     belaz_dumper: [
-        { id: 601, name: "Dirección Hidráulica Lenta", initial:"Dirección muy lenta, sobrecalentamiento, difícil maniobrar.", modelosAplicables:["BELAZ 7530/7560"], alertaSeguridad:"Pérdida de control direccional.", symptoms:["Dirección muy lenta", "Sobrecalentamiento crónico", "Fugas en cilindros principales", "Pérdida de control direccional"], causes:["Bomba dirección insuficiente", "Enfriamiento hidráulico insuficiente", "Fugas internas en válvulas/cilindros"], diagnosticSteps:["1. Medición tiempo respuesta dirección.", "2. Análisis térmico sistema completo.", "3. Prueba de carga máxima."], solution:["Kit upgrade bomba dirección", "Cilindros dirección reforzados", "Sistema enfriamiento adicional"], costoEstimado:"US$ 10,000 - $30,000+", searchTerms:"belaz direccion hidraulica lenta sobrecalentamiento", codes:[] }
-     ],
-     komatsu_dumper: [
-        { id: 602, name: "Tracción Eléctrica AC - Pérdida Tracción", initial:"Alarmas eléctricas, sobrecalentamiento motores rueda, pérdida tracción.", modelosAplicables:["Komatsu 860E/930E"], alertaSeguridad:"Alta tensión.", symptoms:["Pérdida tracción intermitente", "Alarmas eléctricas múltiples", "Sobrecalentamiento motores rueda (>120°C)"], causes:["Módulos IGBT fatigados", "Armónicos en sistema (contaminación)", "Falla generador/inversor", "Cableado"], diagnosticSteps:["1. Análisis armónicos sistema eléctrico.", "2. Termografía componentes potencia.", "3. Prueba aislamiento motores/generador."], solution:["Reemplazo módulos IGBT", "Recalibración tracción", "Reparación/reemplazo generador/inversor"], costoEstimado:"US$ 10,000 (IGBT) - $400,000+ (Generador)", searchTerms:"komatsu 930e traccion electrica falla igbt", codes:[] }
-     ],
-    perforadora: [
-        { id: 701, name: "Rotación Principal - Torque Insuficiente", initial:"Torque insuficiente en roca dura, vibraciones anormales.", modelosAplicables:["Perforadoras rotativas"], symptoms:["Torque insuficiente", "Vibraciones anormales", "Desgaste prematuro coronas", "Sobrecalentamiento motor rotación"], causes:["Motor rotación subdimensionado", "Desgaste coronas", "Falla hidráulica (presión/caudal bajo)"], diagnosticSteps:["1. Análisis espectro vibraciones.", "2. Medición torque real vs especificado.", "3. Inspección ultrasonido ejes."], solution:["Balanceo dinámico sistema rotación", "Kit upgrade motor rotación", "Reemplazo coronas"], costoEstimado:"Variable", searchTerms:"perforadora rotativa torque insuficiente vibracion", codes:[] }
-    ],
-    compactador: [
-        { id: 801, name: "Sistema Vibratorio Hidráulico - Frecuencia Inestable", initial:"Frecuencia inestable, amplitud decreciente, ruidos metálicos.", modelosAplicables:["Compactadores vibratorios"], symptoms:["Frecuencia variable", "Ruidos metálicos", "Amplitud decreciente", "Fugas aceite en motovibradores"], causes:["Ejes excéntricos desbalanceados", "Fugas internas/externas", "Falla control hidráulico (válvulas)"], diagnosticSteps:["1. Analisis frecuencia/amplitud real.", "2. Medición presión sistema vibratorio.", "3. Inspección ejes excéntricos."], solution:["Rebalanceo masas excéntricas", "Kit sellos motovibradores", "Actualización control vibratorio"], costoEstimado:"US$ 1,500 - $5,000", searchTerms:"compactador vibratorio frecuencia inestable", codes:[] }
-    ],
-    diagnostico: [
-        { id: 8001, name: "Análisis de Vibraciones (Rodamientos/Engranajes)", initial:"Detección de fatiga/desbalance/desalineación.", modelosAplicables:["Diagnóstico Avanzado"], symptoms:["Aumento velocidad vibratoria RMS", "Bandas laterales engranajes", "Frecuencias características rodamientos (BPFO, BPFI)"], causes:["Desbalanceo", "Desalineación", "Fatiga rodamientos", "Desgaste engranajes"], diagnosticSteps:["1. Adquisición acelerómetros 10kHz.", "2. Análisis espectral (FFT).", "3. Tendencias de velocidad/aceleración."], solution:["Balanceo dinámico", "Alineación láser", "Reemplazo rodamientos/engranajes"], costoEstimado:"N/A (Metodología)", searchTerms:"analisis vibraciones rodamientos engranajes", codes:[], diagnosticTechnique:{ description: "Metodología de Análisis Espectral Cuantitativo:", code: `Acelerómetros triaxiales, muestreo >=10kHz, análisis espectral.\nLímites: < 2.8 mm/s - Bueno; > 7.1 mm/s - No satisfactorio (ISO 10816-3).\nFrecuencias típicas: BPFO, BPFI, FTF, BSF. Consultar tablas de rodamientos.`}, specs: { iso:"ISO 10816-3", freq_sampling: ">= 10 kHz" } },
-        { id: 8002, name: "Termografía Infrarroja (Hotspots)", initial:"Detección de sobrecalentamiento en componentes.", modelosAplicables:["Diagnóstico Avanzado"], symptoms:["Puntos calientes (Hotspots) detectables IR"], causes:["Conexiones eléctricas flojas", "Desbalanceo de fases", "Falla incipiente en rodamientos", "Válvulas hidráulicas obstruidas"], diagnosticSteps:["1. Escaneo termografico (comparar con baseline).", "2. Medición de gradientes de temperatura.", "3. Inspección visual del componente."], solution:["Apretar conexiones", "Equilibrar fases", "Reemplazar rodamientos", "Limpieza/Reemplazo válvulas"], costoEstimado:"N/A (Metodología)", searchTerms:"termografia infrarroja diagnostico hotspots", codes:[], diagnosticTechnique:{ description: "Criterios de Alarma (Delta T):", code:`Diferencia de temperatura > 15°C respecto a componentes similares o baseline es crítica.\nUsar análisis termográfico comparativo (Delta T) y absoluto.`} },
-        { id: 9001, name: "Análisis de Aceite (Tribología)", initial:"Partículas de desgaste elevadas, contaminación, degradación.", modelosAplicables:["Diagnóstico Avanzado"], symptoms:["Aumento Fe, Si, Al, Cr en ppm", "Viscosidad fuera de rango", "Alto Número Ácido (TAN)", "Presencia Agua/Combustible"], causes:["Desgaste rodamientos/engranajes", "Contaminación abrasiva (Si/Al)", "Contaminación por agua/combustible", "Oxidación/degradación aditivos"], diagnosticSteps:["1. Espectrometría de emisión atómica (ICP/OES).", "2. Viscosidad cinemática (40°C/100°C).", "3. Número Ácido Total (TAN) / Número Básico Total (TBN).", "4. Ferrografía Analítica (morfología partículas).", "5. Conteo de partículas (ISO 4406)."], solution:["Filtrado avanzado (riñón)", "Cambio aceite", "Investigación origen partículas", "Reemplazo filtros", "Reparación sellos"], costoEstimado:"N/A (Metodología)", searchTerms:"analisis aceite ppm desgaste contaminacion ferrografia", codes:[], diagnosticTechnique:{ description: "Límites de Alarma Típicos (ppm) y Estándares:", code:`Límites críticos (ppm) varían por compartimento: Fe > 50-200 (motor), Si > 20 (alerta contaminación).\nClasificación ISO 4406 limpieza (Objetivo: 18/16/13 o menor para hidráulico).\nVerificar si la dilución por combustible es mayor al 2%.`} }
-    ]
-};
+        function clearDisplay() {
+            display.value = '';
+        }
 
-// --- BASE DE DATOS 4: BIBLIOTECA (De Don_Piston_Proyecto.txt) ---
-const db_videos = [
-    { title: "Formación de Técnico de Maquinaria Pesada", url: "https://www.youtube.com/embed/BDOqZ2tT5Fs", desc: "Explica lo que implica aprender el oficio de mecánico de maquinaria pesada.", img: "https://img.youtube.com/vi/BDOqZ2tT5Fs/0.jpg" },
-    { title: "Reparaciones Reales en Campo (Service Call #61)", url: "https://www.youtube.com/embed/i-rOPrysBkM", desc: "Reparaciones reales en campo, con excavadoras, ejes rotos, etc.", img: "https://img.youtube.com/vi/i-rOPrysBkM/0.jpg" },
-    { title: "Tips y Trucos para Reparación", url: "https://www.youtube.com/embed/8WC3tr1Lo-U", desc: "Consejos de mantenimiento general para maquinaria pesada.", img: "https://img.youtube.com/vi/8WC3tr1Lo-U/0.jpg" },
-    { title: "Tutorial: Engrase y Aceitado de Maquinaria", url: "https://www.youtube.com/embed/o7cCcDcTurs", desc: "Mantenimiento básico: engrase, engrasadores, etc.", img: "https://img.youtube.com/vi/o7cCcDcTurs/0.jpg" },
-    { title: "Guía de Primeras Herramientas (Mecánico Pesado)", url: "https://www.youtube.com/embed/zerPj6JX2fY", desc: "Ideal para estudiantes o gente que está empezando.", img: "https://img.youtube.com/vi/zerPj6JX2fY/0.jpg" },
-    { title: "Servicio de Excavadora de 250 Horas", url: "https://www.youtube.com/embed/QNzaDCCyTGE", desc: "Un servicio de excavadora de 250 horas, bastante especializado.", img: "https://img.youtube.com/vi/QNzaDCCyTGE/0.jpg" },
-    { title: "Reparación Cilindros CAT 992K Gigante", url: "https://www.youtube.com/embed/bl3WwrUTB8M", desc: "Reparación avanzada de cilindros hidráulicos en maquinaria gigante.", img: "https://img.youtube.com/vi/bl3WwrUTB8M/0.jpg" },
-    { title: "Reparaciones en la Lluvia (Service Call #68)", url: "https://www.youtube.com/embed/C7hloLZ1KT0", desc: "Muestra la realidad del trabajo de campo bajo condiciones duras (lluvia, barro).", img: "https://img.youtube.com/vi/C7hloLZ1KT0/0.jpg" }
-];
+        function backspace() {
+            display.value = display.value.slice(0, -1);
+        }
 
-const db_foros = [
-    { title: "¿Cómo entraste al mundo de la maquinaria pesada?", url: "https://www.reddit.com/r/heavyequipment/comments/1dxbqdd/how_did_you_get_into_heavy_equipment/", desc: "Un mecánico comenta su transición al rubro." },
-    { title: "¿Quién hace el Mantenimiento Diario?", url: "https://www.reddit.com/r/heavyequipment/comments/1k1pkhn/a_question_on_who_does_the_daily_maintenance_on/", desc: "Útil para ver tareas reales de mantenimiento diario." },
-    { title: "Técnico Diésel vs. Maquinaria Pesada", url: "https://www.reddit.com/r/DieselTechs/comments/142jxi5/diesel_tech_vs_heavy_equipment/", desc: "Comparación entre mecánica diésel y maquinaria pesada." },
-    { title: "¿Vale la pena ser técnico de maquinaria pesada?", url: "https://www.reddit.com/r/heavyequipment/comments/z6ezoi/is_it_worth_being_a_heavy_equipment_technician/", desc: "La parte de estilo de vida/trabajo duro." },
-    { title: "Experiencias de campo", url: "https://www.reddit.com/r/DieselTechs/comments/1bci2dl/heavy_equipment_mechanic/", desc: "Historias reales y consejos de veteranos." },
-    { title: "Foro Principal: HeavyEquipmentForums", url: "https://www.heavyequipmentforums.com", desc: "La comunidad técnica más grande, con miles de hilos para mecánicos." }
-];
-
-
-/* ========================================================================= */
-/* LÓGICA DE LA APLICACIÓN (v2.0)                                            */
-/* ========================================================================= */
-
-// --- Variables Globales ---
-let allFailuresFlat = []; // Lista plana de todas las fallas del manual
-let selectedMachineType = null;
-let selectedBrandModelKey = null;
-const allTabButtons = document.querySelectorAll('.tab-button');
-const allTabContents = document.querySelectorAll('.tab-content');
-
-// --- Funciones Principales ---
-
-document.addEventListener('DOMContentLoaded', () => {
-    // 1. Inicializar Pestañas
-    setupTabs();
-    
-    // 2. Inicializar Chatbot
-    setupChatbot();
-    
-    // 3. Inicializar Manual
-    allFailuresFlat = flattenData(failures); // Crear la lista plana para el chatbot
-    setupManual();
-    
-    // 4. Inicializar Biblioteca
-    setupBiblioteca();
-});
-
-function setupTabs() {
-    allTabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            const tabName = button.dataset.tab;
-            activateTab(tabName);
-        });
-    });
-}
-
-function activateTab(tabName) {
-    allTabButtons.forEach(btn => btn.classList.remove('active'));
-    allTabContents.forEach(content => content.classList.remove('active'));
-
-    document.querySelector(`.tab-button[data-tab="${tabName}"]`).classList.add('active');
-    document.getElementById(`${tabName}-tab`).classList.add('active');
-}
-
-function setupChatbot() {
-    const chatLog = document.getElementById('chat-log');
-    const chatForm = document.getElementById('chat-input-form');
-    const chatInput = document.getElementById('chat-input');
-
-    chatForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const userQuery = chatInput.value.trim();
-        if (userQuery === "") return;
-
-        appendMessage('user', userQuery);
-        chatInput.value = "";
-
-        setTimeout(() => {
-            const botResponse = findBotResponse(userQuery);
-            appendMessage('bot', botResponse);
-        }, 500);
-    });
-}
-
-function appendMessage(sender, text) {
-    const chatLog = document.getElementById('chat-log');
-    const icon = sender === 'bot' ? 'B' : '<i class="fas fa-user"></i>';
-    const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${sender}`;
-    messageDiv.innerHTML = `
-        <div class="icon">${icon}</div>
-        <div class="text-bubble">${text}</div>
-    `;
-    chatLog.appendChild(messageDiv);
-    chatLog.scrollTop = chatLog.scrollHeight;
-}
-
-/**
- * LÓGICA DE BÚSQUEDA INTELIGENTE v2.0
- */
-function findBotResponse(query) {
-    const lowerQuery = query.toLowerCase();
-    
-    const frasesIntro = [
-        "Mire, compadre, eso me suena a...",
-        "A ver, parcero, déjeme pensar...",
-        "Clásico problema, viejo. Lo que pasa es que...",
-        "Echale ojo a esto que te voy a decir...",
-        "Uy, esa falla es complicada pero tiene maña..."
-    ];
-    const frasesFallo = [
-        "Me corchaste, mijo. Mejor revisa el manual técnico.",
-        "Ni idea, parcero. ¿Ya revisaste si tiene gasolina? Je, je. Ahora en serio, mejor busca en Google o en el manual.",
-        "Uf, de eso sí que no me acuerdo bien. Prueba buscando en el Manual del Taller."
-    ];
-
-    // --- Búsqueda 1: "Taller Real" (Conversacional) ---
-    let bestMatch = null;
-    let maxMatchCount = 0;
-    for (const item of db_preguntas_respuestas) {
-        let matchCount = 0;
-        for (const keyword of item.keywords) {
-            if (lowerQuery.includes(keyword)) {
-                matchCount++;
+        function calculateResult() {
+            try {
+                // Reemplaza ^ con ** (exponenciación de JS)
+                let expression = display.value.replace(/\^/g, '**');
+                
+                // Nota: Math.sin/cos/tan usan radianes. 
+                // Para grados, se necesitaría una conversión más compleja.
+                // Esta versión simple usa radianes.
+                
+                let result = eval(expression);
+                display.value = result;
+            } catch (error) {
+                display.value = 'Error';
             }
         }
-        if (matchCount > maxMatchCount) {
-            maxMatchCount = matchCount;
-            bestMatch = item.respuesta;
-        }
-    }
-
-    if (maxMatchCount > 1) { // Requiere al menos 2 palabras clave
-        const randomIntro = frasesIntro[Math.floor(Math.random() * frasesIntro.length)];
-        return `${randomIntro}<br><br><strong>${bestMatch}</strong>`;
-    }
-
-    // --- Búsqueda 2: Escenarios Generales (Como "motor con agua") ---
-    const scenario = handleGeneralScenarioQuery(lowerQuery, "esta máquina");
-    if (scenario) {
-        let html = `¡Ojo con eso, parcero! Cuando entra agua al motor, la cosa es grave. A eso le llamamos <strong>${scenario.name}</strong>.<br><br>`;
-        html += `<strong>Síntomas (lo que se ve):</strong><ul>`;
-        scenario.symptoms.forEach(s => html += `<li>${s}</li>`);
-        html += `</ul><br><strong>Causas probables (por qué pasó):</strong><ul>`;
-        scenario.causes.forEach(c => html += `<li>${c}</li>`);
-        html += `</ul><br><strong>Solución (lo que hay que hacer):</strong><ul>`;
-        scenario.solution.forEach(s => html += `<li>${s}</li>`);
-        html += `</ul><br><strong style="color: ${'var(--color-rojo)'};">${scenario.alertaSeguridad}</strong>`;
-        return html;
-    }
-
-    // --- Búsqueda 3: El Manual Técnico (la base de datos grande) ---
-    const manualResults = allFailuresFlat.filter(f => {
-        // Buscar en nombre, síntomas, códigos y términos de búsqueda
-        const searchableText = [f.name, f.initial, f.searchTerms, ...(f.symptoms || []), ...(f.codes || [])]
-            .filter(item => typeof item === 'string').join(' ').toLowerCase();
         
-        // Verificar si *algún* término de la búsqueda (de más de 2 letras) está en el texto
-        return lowerQuery.split(' ').filter(t => t.length > 2).some(term => searchableText.includes(term));
-    });
+        // --- Lógica de Calculadora de Electricidad ---
 
-    if (manualResults.length > 0) {
-        const firstResult = manualResults[0];
-        return `Me corchaste con un cuento exacto de eso, pero...<br><br>
-                En <strong>El Manual del Taller</strong> (la otra pestaña) tengo información técnica sobre <strong>"${firstResult.name}"</strong>.
-                Eso suena a lo que buscas.<br><br>
-                <button class="search-btn" onclick="openManualEntry('${firstResult._sourceKey}', ${firstResult.id})">
-                    <i class="fas fa-book-open"></i> Ver en el Manual
-                </button>`;
-    }
+        // Ley de Ohm
+        function calculateOhm() {
+            let v = parseFloat(document.getElementById('voltaje-ohm').value);
+            let i = parseFloat(document.getElementById('corriente-ohm').value);
+            let r = parseFloat(document.getElementById('resistencia-ohm').value);
 
-    // --- Búsqueda 4: Fallback ---
-    const randomFallback = frasesFallo[Math.floor(Math.random() * frasesFallo.length)];
-    return randomFallback;
-}
-
-// Función auxiliar para Búsqueda 2
-function handleGeneralScenarioQuery(query, machineName) {
-    let scenarioKey = null;
-    if (query.includes('agua') && (query.includes('motor') || query.includes('aceite'))) scenarioKey = "motor_con_agua";
-    // (Añadir más escenarios como 'motor_sin_aceite' aquí)
-
-    if (scenarioKey && generalScenarioTemplates[scenarioKey]) {
-        const templateFunction = generalScenarioTemplates[scenarioKey];
-        return { ...templateFunction(machineName), _isGenerated: true };
-    }
-    return null;
-}
-
-// Función auxiliar para Búsqueda 3
-function flattenData(data) {
-    const flatList = [];
-    for (const key in data) {
-        if (Array.isArray(data[key])) {
-            data[key].forEach(item => {
-                if (item && typeof item === 'object') {
-                    flatList.push({ ...item, _sourceKey: key });
-                }
-            });
+            if (!isNaN(i) && !isNaN(r)) {
+                document.getElementById('voltaje-ohm').value = (i * r).toFixed(4);
+            } else if (!isNaN(v) && !isNaN(r)) {
+                if (r === 0) { alert("Error: Resistencia no puede ser cero para calcular corriente."); return; }
+                document.getElementById('corriente-ohm').value = (v / r).toFixed(4);
+            } else if (!isNaN(v) && !isNaN(i)) {
+                if (i === 0) { alert("Error: Corriente no puede ser cero para calcular resistencia."); return; }
+                document.getElementById('resistencia-ohm').value = (v / i).toFixed(4);
+            } else {
+                alert("Por favor, ingrese dos valores para calcular el tercero.");
+            }
         }
-    }
-    return flatList;
-}
 
-/**
- * Función global para que el botón del chat abra el manual
- */
-function openManualEntry(brandKey, failureId) {
-    const failure = (failures[brandKey] || []).find(f => f.id === failureId);
-    if (!failure) return;
-
-    // 1. Activar la pestaña del manual
-    activateTab('manual');
-
-    // 2. Encontrar la marca y el tipo de máquina (esto es un poco inverso)
-    let typeKey = null;
-    for (const key in brandsAndModels) {
-        if (brandsAndModels[key].some(brand => brand.key === brandKey)) {
-            typeKey = key;
-            break;
+        function clearOhm() {
+            document.getElementById('voltaje-ohm').value = '';
+            document.getElementById('corriente-ohm').value = '';
+            document.getElementById('resistencia-ohm').value = '';
         }
-    }
-    
-    // 3. Simular la navegación del manual
-    const manualWindow = document.getElementById('manual-window');
-    if (typeKey) {
-        showBrands(typeKey);
-    } else {
-        // Si no se encuentra tipo (ej. diagnóstico avanzado), solo mostrar la falla
-        initMachineTypes(); // Asegurarse que el paso 1 esté visible
-    }
-    
-    selectBrandModel(brandKey);
-    showDiagnosis(failure);
-    
-    // 4. Scroll hasta el diagnóstico
-    setTimeout(() => {
-        manualWindow.querySelector('#diagnosisArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }, 100);
-}
 
+        // Ley de Watt
+        function calculateWatt() {
+            let p = parseFloat(document.getElementById('potencia-watt').value);
+            let v = parseFloat(document.getElementById('voltaje-watt').value);
+            let i = parseFloat(document.getElementById('corriente-watt').value);
 
-// --- Lógica del Manual (Basada en gemini.txt) ---
-function setupManual() {
-    const manualWindow = document.getElementById('manual-window');
-    const machineTypeSection = manualWindow.querySelector('#machineTypeSection');
-    const brandModelSection = manualWindow.querySelector('#brandModelSection');
-    const failureSection = manualWindow.querySelector('#failureSection');
-    const diagnosisArea = manualWindow.querySelector('#diagnosisArea');
-    const machineTypesGrid = manualWindow.querySelector('#machineTypesGrid');
-    const brandsGrid = manualWindow.querySelector('#brandsGrid');
-    const failuresList = manualWindow.querySelector('#failuresList');
-    const filterInput = manualWindow.querySelector('#filterInput');
-    const diagnosisResult = manualWindow.querySelector('#diagnosisResult');
-    const diagnosisTitle = manualWindow.querySelector('#diagnosisTitle');
-    const backToTypesBtn = manualWindow.querySelector('#backToTypesBtn');
-    const backToBrandsBtn = manualWindow.querySelector('#backToBrandsBtn');
-    const backToFailuresBtn = manualWindow.querySelector('#backToFailuresBtn');
-    const btnOpenGoogleDiag = manualWindow.querySelector('#btnOpenGoogleDiag');
-    const btnReset = manualWindow.querySelector('#btnReset');
-
-    function renderManualIcon(iconHtmlOrEmoji) {
-        if (typeof iconHtmlOrEmoji === 'string' && iconHtmlOrEmoji.startsWith('<i')) {
-            return iconHtmlOrEmoji;
+            if (!isNaN(v) && !isNaN(i)) {
+                document.getElementById('potencia-watt').value = (v * i).toFixed(4);
+            } else if (!isNaN(p) && !isNaN(i)) {
+                if (i === 0) { alert("Error: Corriente no puede ser cero para calcular voltaje."); return; }
+                document.getElementById('voltaje-watt').value = (p / i).toFixed(4);
+            } else if (!isNaN(p) && !isNaN(v)) {
+                if (v === 0) { alert("Error: Voltaje no puede ser cero para calcular corriente."); return; }
+                document.getElementById('corriente-watt').value = (p / v).toFixed(4);
+            } else {
+                alert("Por favor, ingrese dos valores para calcular el tercero.");
+            }
         }
-        return `<span class="icon">${iconHtmlOrEmoji || '❓'}</span>`;
-    }
 
-    function initMachineTypes() {
-        machineTypesGrid.innerHTML = '';
-        Object.keys(machineTypes).sort((a,b) => machineTypes[a].name.localeCompare(machineTypes[b].name)).forEach(key => {
-            const type = machineTypes[key];
-            const card = document.createElement('div');
-            card.className = 'selection-card';
-            card.innerHTML = `${renderManualIcon(type.icon)}<strong>${type.name}</strong><div class="description">${type.description || ''}</div>`;
-            card.onclick = () => showBrands(key);
-            machineTypesGrid.appendChild(card);
-        });
-    }
-    window.showBrands = function(typeKey) { // Hacer global para openManualEntry
-        selectedMachineType = typeKey;
-        brandsGrid.innerHTML = '';
-        const brands = brandsAndModels[typeKey] || [];
-        if (brands.length === 0) {
-            brandsGrid.innerHTML = `<p class="no-failures">Aún no hay marcas/modelos definidos para ${machineTypes[typeKey]?.name || typeKey}.</p>`;
-        } else {
-            brands.sort((a,b) => a.name.localeCompare(b.name)).forEach(brand => {
-                const card = document.createElement('div');
-                card.className = 'selection-card';
-                const modelsText = (brand.models && Array.isArray(brand.models)) ? `<div class="description">${brand.models.join(' / ')}</div>` : '';
-                card.innerHTML = `${renderManualIcon(brand.icon || machineTypes[typeKey]?.icon)}<strong>${brand.name}</strong>${modelsText}`;
-                card.onclick = () => selectBrandModel(brand.key);
-                brandsGrid.appendChild(card);
-            });
+        function clearWatt() {
+            document.getElementById('potencia-watt').value = '';
+            document.getElementById('voltaje-watt').value = '';
+            document.getElementById('corriente-watt').value = '';
         }
-        machineTypeSection.classList.add('hidden');
-        brandModelSection.classList.remove('hidden');
-        failureSection.classList.add('hidden');
-        diagnosisArea.classList.add('hidden');
-    }
 
-    window.selectBrandModel = function(brandKey) { // Hacer global
-        selectedBrandModelKey = brandKey;
-        filterInput.value = '';
-        renderFailuresList(brandKey, '');
-        brandModelSection.classList.add('hidden');
-        failureSection.classList.remove('hidden');
-        diagnosisArea.classList.add('hidden');
-    }
+    </script>
 
-    function renderFailuresList(brandKey, filterText = '') {
-        failuresList.innerHTML = '';
-        const modelFailures = Array.isArray(failures[brandKey]) ? failures[brandKey] : [];
-        const lowerFilterText = filterText.toLowerCase().trim();
-        
-        const filteredFailures = modelFailures.filter(f => {
-            if (!f || typeof f !== 'object') return false;
-            if (!lowerFilterText) return true;
-            const searchableText = [
-                f.name, f.initial, f.searchTerms,
-                ...(f.symptoms || []), ...(f.modelosAplicables || []), ...(f.codes || []),
-                ...(f.causes || []), ...(f.solution || []), ...(f.prevention || []), f.datoIngeniero,
-            ].filter(item => typeof item === 'string').join(' ').toLowerCase();
-            return searchableText.includes(lowerFilterText);
-        });
-
-        if (filteredFailures.length === 0) {
-            let brandName = 'este modelo/método';
-            const brandData = (brandsAndModels[selectedMachineType] || []).find(b => b.key === brandKey);
-            if (brandData) brandName = brandData.name;
-            failuresList.innerHTML = `<p class="no-failures">${filterText ?
-                'No se encontraron fallas con ese filtro.' : `Aún no hay fallas definidas para ${brandName}.`}</p>`;
-        } else {
-            filteredFailures.sort((a,b) => (a.name || '').localeCompare(b.name || '')).forEach(f => {
-                const btn = document.createElement('button');
-                btn.className = 'failure-btn';
-                const modelsText = (f.modelosAplicables && Array.isArray(f.modelosAplicables)) ? `<div class="models">Modelos: ${f.modelosAplicables.join(', ')}</div>` : '';
-                const initialText = f.initial || 'Contexto no especificado.';
-                btn.innerHTML = `<strong>${f.name || 'Falla sin nombre'}</strong><div class="initial-context">${initialText}</div>${modelsText}`;
-                btn.onclick = () => showDiagnosis(f);
-                failuresList.appendChild(btn);
-            });
-        }
-    }
-
-    filterInput.addEventListener('input', (e) => {
-        if (selectedBrandModelKey) {
-            renderFailuresList(selectedBrandModelKey, e.target.value);
-        }
-    });
-
-    const renderList = (items, type = 'ul') => {
-        if (!items || (Array.isArray(items) && items.length === 0)) return '<p>Información no disponible.</p>';
-        if (typeof items === 'string') return `<p>${items}</p>`;
-        if (Array.isArray(items)) {
-            const listItems = items.filter(item => item != null && String(item).trim() !== '').map(item => `<li>${String(item)}</li>`).join('');
-            if (!listItems) return '<p>Información no disponible.</p>';
-            return type === 'ol' ? `<ol>${listItems}</ol>` : `<ul>${listItems}</ul>`;
-        }
-        return '<p>Formato de datos no reconocido.</p>';
-    };
-    const renderCodes = (codes) => {
-        if (!Array.isArray(codes) || codes.length === 0) return '';
-        const codeItems = codes.filter(c => c != null && String(c).trim() !== '').map(c => `<code>${String(c)}</code>`).join(' ');
-         if (!codeItems) return '';
-        return `<div class="info-card codes-list"><h4><i class="fas fa-laptop-code"></i> Códigos Error Comunes</h4><p>${codeItems}</p></div>`;
-    };
-    const renderAdvanced = (items) => {
-        if (!items) return '';
-        let content = '';
-        if (typeof items === 'string') { content = `<p>${items}</p>`; }
-        else if (Array.isArray(items) && items.length > 0) { content = renderList(items, 'ol'); }
-        else if (typeof items === 'object' && items !== null && items.code !== undefined) { content = `${items.description ? `<p>${items.description}</p>` : ''}<pre><code>${items.code}</code></pre>`; }
-        else { return ''; }
-        return `<div class="info-card advanced-card"><h4><i class="fas fa-microscope"></i> Diagnóstico Avanzado / Técnico</h4>${content}</div>`;
-    };
-    const renderSpecs = (specs) => {
-         if (!specs) return '';
-         let content = '';
-         if(typeof specs === 'string') { content = `<p>${specs}</p>`; }
-         else if (Array.isArray(specs) && specs.length > 0) { content = renderList(specs); }
-         else if (typeof specs === 'object' && specs !== null && Object.keys(specs).length > 0) {
-             content = '<ul>';
-             for (const key in specs) {
-                 const formattedKey = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase()).replace(/_/g, ' ');
-                 content += `<li><strong>${formattedKey}:</strong> ${specs[key]}</li>`;
-             }
-             content += '</ul>';
-         }
-         if (!content || content === '<ul></ul>') return '';
-         return `<div class="info-card specs-card"><h4><i class="fas fa-ruler-combined"></i> Especificaciones Técnicas</h4>${content}</div>`;
-    };
-    const renderAtacama = (notes) => {
-        if (!notes) return '';
-         return `<div class="info-card atacama-note"><h4><i class="fas fa-mountain-sun"></i> Notas Específicas Atacama</h4>${renderList(notes)}</div>`;
-    }
-
-    window.showDiagnosis = function(f) { // Hacer global
-        if (!f || typeof f !== 'object') return;
-        diagnosisArea.classList.remove('hidden');
-        failureSection.classList.add('hidden');
-        diagnosisTitle.innerHTML = `<i class="fas fa-clipboard-list section-icon"></i> Diagnóstico: ${f.name || 'Detalle de Falla'}`;
-        diagnosisResult.innerHTML = `
-            ${(f.modelosAplicables && Array.isArray(f.modelosAplicables)) ?
-            `<p class="model-info">Modelos: ${f.modelosAplicables.join(', ')}</p>`: ''}
-            ${f.alertaSeguridad ? `<div class="alert-safety info-card"><h4><i class="fas fa-triangle-exclamation"></i> ALERTA SEGURIDAD</h4><p>${f.alertaSeguridad || 'N/A'}</p></div>` : ''}
-            <div class="info-card"><h4><i class="fas fa-eye"></i> Síntomas</h4>${renderList(f.symptoms)}<p style="margin-top:15px;"><strong>Contexto:</strong> ${f.initial || 'N/A'}</p></div>
-            <div class="info-card"><h4><i class="fas fa-project-diagram"></i> Causas Probables</h4>${renderList(f.causes)}</div>
-            <div class="info-card"><h4><i class="fas fa-stethoscope"></i> Pasos de Diagnóstico</h4>${renderList(f.diagnosticSteps, 'ol')}</div>
-            ${renderAdvanced(f.diagnosticAdvanced || f.diagnosticTechnique)}
-            <div class="info-card"><h4><i class="fas fa-wrench"></i> Soluciones Recomendadas</h4>${renderList(f.solution)}</div>
-            ${renderAdvanced(f.solutionAdvanced)}
-            <div class="info-card gestion-card"><h4><i class="fas fa-tasks"></i> Gestión (Estimados)</h4><p><strong>Costo Estimado:</strong> ${f.costoEstimado || 'Variable'}</p>${f.tiempoDowntime ? `<p><strong>Tiempo Inactividad (Downtime):</strong> ${f.tiempoDowntime}</p>` : ''}</div>
-            ${renderSpecs(f.specs)}
-            ${renderCodes(f.codes)}
-            ${renderAtacama(f.atacamaNotes)}
-            ${f.datoIngeniero || f.prevention ? `<div class="info-card alert-engineer"><h4><i class="fas ${f.prevention ? 'fa-shield-alt' : 'fa-lightbulb'}"></i> ${f.prevention ? 'Prevención' : 'Dato Técnico'}</h4>${f.datoIngeniero ? `<p>${f.datoIngeniero}</p>` : ''}${f.prevention ? renderList(f.prevention) : ''}</div>` : ''}
-        `;
-        const searchTerm = (typeof f.searchTerms === 'string' ? f.searchTerms : f.name) || '';
-        const q = encodeURIComponent(searchTerm);
-        let brandModelName = '';
-        if (selectedMachineType && selectedBrandModelKey) {
-            const brandData = (brandsAndModels[selectedMachineType] || []).find(b => b.key === selectedBrandModelKey);
-            brandModelName = brandData ? brandData.name : '';
-        }
-        btnOpenGoogleDiag.href = `https://www.google.com/search?q=${q}+${encodeURIComponent(brandModelName)}`;
-    }
-    
-    // Listeners de botones del Manual
-    backToTypesBtn.addEventListener('click', () => {
-        brandModelSection.classList.add('hidden');
-        machineTypeSection.classList.remove('hidden');
-        selectedBrandModelKey = null;
-    });
-    backToBrandsBtn.addEventListener('click', () => {
-        failureSection.classList.add('hidden');
-        brandModelSection.classList.remove('hidden');
-    });
-    backToFailuresBtn.addEventListener('click', () => {
-        diagnosisArea.classList.add('hidden');
-        failureSection.classList.remove('hidden');
-    });
-    btnReset.addEventListener('click', () => {
-        brandModelSection.classList.add('hidden');
-        failureSection.classList.add('hidden');
-        diagnosisArea.classList.add('hidden');
-        machineTypeSection.classList.remove('hidden');
-        selectedMachineType = null;
-        selectedBrandModelKey = null;
-        filterInput.value = '';
-        window.scrollTo({top: 0, behavior:'smooth'});
-    });
-    
-    // Iniciar el Manual
-    initMachineTypes();
-}
-
-    // --- Lógica de la Biblioteca ---
-function setupBiblioteca() {
-    const videoList = document.getElementById('video-list');
-    const forumList = document.getElementById('forum-list');
-
-    db_videos.forEach(video => {
-        const card = document.createElement('div');
-        card.className = 'resource-card';
-        card.innerHTML = `
-            <a href="${video.url.replace('embed/', 'watch?v=')}" target="_blank" rel="noopener noreferrer">
-                <img src="${video.img}" alt="${video.title}">
-            </a>
-            <div class="resource-card-content">
-                <h4>${video.title}</h4>
-                <p>${video.desc}</p>
-                <a href="${video.url.replace('embed/', 'watch?v=')}" target="_blank" rel="noopener noreferrer">Ver Video <i class="fas fa-external-link-alt"></i></a>
-            </div>
-        `;
-        videoList.appendChild(card);
-    });
-
-    db_foros.forEach(forum => {
-        const card = document.createElement('div');
-        card.className = 'resource-card';
-        card.innerHTML = `
-            <div class="resource-card-content">
-                <h4>${forum.title}</h4>
-                <p>${forum.desc}</p>
-                <a href="${forum.url}" target="_blank" rel="noopener noreferrer">Leer Hilo <i class="fas fa-external-link-alt"></i></a>
-            </div>
-        `;
-        forumList.appendChild(card);
-    });
-}
-});
-</script>
 </body>
 </html>
+
+

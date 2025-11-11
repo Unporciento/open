@@ -1,72 +1,79 @@
-/* script.js - Navegación GNC (Versión Formal, Sin Avatares) */
+/* script.js - GNC Presentación (Versión "Informe Interactivo") */
 
-(() => {
+document.addEventListener('DOMContentLoaded', () => {
+
+    const slides = document.querySelectorAll('.slide');
+    const navLinks = document.querySelectorAll('.nav-link');
     const contentArea = document.querySelector('.content-area');
-    const slides = Array.from(contentArea.querySelectorAll('.slide'));
-    const slideTitleElement = document.getElementById('slideTitle');
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    
-    // (NUEVO) Referencia a la barra de progreso
-    const progressBar = document.getElementById('progressBar');
-    
-    let currentIndex = 0;
-    const totalSlides = slides.length;
 
-    function updateSlide() {
-        slides.forEach((slide, index) => {
-            slide.classList.remove('active', 'prev');
-            
-            if (index === currentIndex) {
-                slide.classList.add('active');
-                
-                // Actualizar el título de la diapositiva en la barra de control
-                // Usa el atributo 'data-title' que pusimos en el HTML
-                const title = slide.getAttribute('data-title') || 'CONTENIDO';
-                slideTitleElement.textContent = title.toUpperCase();
-
-            } else if (index < currentIndex) {
-                slide.classList.add('prev');
+    // --- 1. Observador para la Navegación (Cuál slide está activa) ---
+    
+    // Esta función actualiza la barra lateral
+    const updateActiveNav = (id) => {
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === `#${id}`) {
+                link.classList.add('active');
             }
         });
+    };
 
-        // (NUEVO) Actualizar la barra de progreso
-        const percentage = ((currentIndex + 1) / totalSlides) * 100;
-        progressBar.style.width = percentage + '%';
-
-        // Actualizar indicadores de navegación
-        prevBtn.disabled = currentIndex === 0;
-        nextBtn.disabled = currentIndex === totalSlides - 1;
-    }
-
-    function goToNextSlide() {
-        if (currentIndex < totalSlides - 1) {
-            currentIndex++;
-            updateSlide();
-        }
-    }
-
-    function goToPrevSlide() {
-        if (currentIndex > 0) {
-            currentIndex--;
-            updateSlide();
-        }
-    }
-
-    // Event Listeners
-    nextBtn.addEventListener('click', goToNextSlide);
-    prevBtn.addEventListener('click', goToPrevSlide);
-    
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowRight' || e.key === ' ') {
-            e.preventDefault();
-            goToNextSlide();
-        } else if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            goToPrevSlide();
-        }
+    // El observador que mira qué slide está en pantalla
+    const navObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const id = entry.target.getAttribute('id');
+                updateActiveNav(id);
+            }
+        });
+    }, {
+        root: contentArea,
+        threshold: 0.51 // Se activa cuando más del 50% está visible
     });
 
-    // Inicializar presentación
-    updateSlide();
-})();
+    // Observar cada slide
+    slides.forEach(slide => navObserver.observe(slide));
+
+    
+    // --- 2. Observador para Animaciones (Animar al scrollear) ---
+    
+    const animationObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+                observer.unobserve(entry.target); // Animar solo una vez
+            }
+        });
+    }, {
+        root: contentArea,
+        threshold: 0.1 // Activar apenas entre en pantalla
+    });
+
+    // Observar cada elemento que debe animarse
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        animationObserver.observe(el);
+    });
+
+    
+    // --- 3. Scroll Suave para la Navegación ---
+    
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = link.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+
+    // --- 4. Navegación por Teclado (Espacio/Flechas) ---
+    
+    // (Deshabilitado por defecto en modo scroll, pero útil si se quiere volver a modo "slide")
+    // Por ahora, el scroll natural con la rueda del mouse y las flechas es el método de navegación.
+
+});

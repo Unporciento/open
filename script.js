@@ -71,9 +71,20 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- 4. Navegación por Teclado (Espacio/Flechas) ---
+    // --- 4. Controles (Ocultos, pero funcionales para el script) ---
     
-    // (Deshabilitado por defecto en modo scroll, pero útil si se quiere volver a modo "slide")
-    // Por ahora, el scroll natural con la rueda del mouse y las flechas es el método de navegación.
+    // (Este código es para los botones, que ahora están ocultos,
+    // pero lo dejo por si quieres volver a ponerlos)
+    
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    if (prevBtn && nextBtn) {
+        // Esta lógica es para un modo "slide" y no "scroll".
+        // La navegación principal ahora es el scroll y la barra lateral.
+        prevBtn.style.display = 'none';
+        nextBtn.style.display = 'none';
+        document.querySelector('.controls').style.display = 'none';
+    }
 
 });

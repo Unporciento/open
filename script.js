@@ -1,0 +1,72 @@
+/* script.js - Navegación GNC (Versión Formal, Sin Avatares) */
+
+(() => {
+    const contentArea = document.querySelector('.content-area');
+    const slides = Array.from(contentArea.querySelectorAll('.slide'));
+    const slideTitleElement = document.getElementById('slideTitle');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    
+    // (NUEVO) Referencia a la barra de progreso
+    const progressBar = document.getElementById('progressBar');
+    
+    let currentIndex = 0;
+    const totalSlides = slides.length;
+
+    function updateSlide() {
+        slides.forEach((slide, index) => {
+            slide.classList.remove('active', 'prev');
+            
+            if (index === currentIndex) {
+                slide.classList.add('active');
+                
+                // Actualizar el título de la diapositiva en la barra de control
+                // Usa el atributo 'data-title' que pusimos en el HTML
+                const title = slide.getAttribute('data-title') || 'CONTENIDO';
+                slideTitleElement.textContent = title.toUpperCase();
+
+            } else if (index < currentIndex) {
+                slide.classList.add('prev');
+            }
+        });
+
+        // (NUEVO) Actualizar la barra de progreso
+        const percentage = ((currentIndex + 1) / totalSlides) * 100;
+        progressBar.style.width = percentage + '%';
+
+        // Actualizar indicadores de navegación
+        prevBtn.disabled = currentIndex === 0;
+        nextBtn.disabled = currentIndex === totalSlides - 1;
+    }
+
+    function goToNextSlide() {
+        if (currentIndex < totalSlides - 1) {
+            currentIndex++;
+            updateSlide();
+        }
+    }
+
+    function goToPrevSlide() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateSlide();
+        }
+    }
+
+    // Event Listeners
+    nextBtn.addEventListener('click', goToNextSlide);
+    prevBtn.addEventListener('click', goToPrevSlide);
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowRight' || e.key === ' ') {
+            e.preventDefault();
+            goToNextSlide();
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            goToPrevSlide();
+        }
+    });
+
+    // Inicializar presentación
+    updateSlide();
+})();

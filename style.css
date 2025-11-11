@@ -1,0 +1,330 @@
+/* * CSS COMBINADO Y MEJORADO
+ * Base: Estilo V2 (Azul/Naranja)
+ * Contenido: 20 Slides de V1
+ * Mejoras: Animaciones "subtleFloat", Barra de Progreso y Nuevo Final.
+*/
+
+/* Paleta de Colores GNC: Azul (Tecnología) y Naranja (Energía) */
+:root {
+    --color-energy: #FF7F00;
+    --color-tech: #0047AB;
+    --color-bg-dark: #1F2937;
+    --color-bg-content: #111827;
+    --color-text-light: #F9FAFB;
+    --color-text-dim: #9CA3AF;
+    --color-success: #06D6A0;
+}
+
+/* Animación flotante de MinePredict */
+@keyframes subtleFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--color-bg-dark);
+    color: var(--color-text-light);
+    height: 100vh;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    overflow: hidden;
+    padding-top: 5px; /* Espacio para barra de progreso */
+}
+
+/* (NUEVO) Barra de Progreso */
+.progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 5px;
+    background: linear-gradient(90deg, var(--color-energy), var(--color-tech));
+    width: 0%; /* Inicia en 0 */
+    z-index: 2000; /* Por encima de todo */
+    transition: width 0.4s ease-out; /* Animación suave */
+    box-shadow: 0 2px 10px rgba(255, 127, 0, 0.5);
+}
+
+.presentation-container {
+    display: grid;
+    grid-template-columns: 1fr; /* <- CAMBIADO: Panel de avatar eliminado */
+    height: 100%;
+    overflow: hidden;
+}
+
+/* --- ÁREA DE CONTENIDO --- */
+.content-area {
+    position: relative;
+    background-color: var(--color-bg-content);
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 2.5rem 3rem;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    display: none;
+    flex-direction: column;
+    pointer-events: none;
+}
+
+.slide.active {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+.slide.prev {
+    transform: translateX(-50px);
+    opacity: 0;
+}
+
+.slide-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Contenido centrado (para portadas) */
+.center-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+
+/* Estilos de Texto */
+h1 {
+    font-size: 3.5rem;
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, var(--color-energy), #FFD93D);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+h2 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--color-text-light);
+    border-bottom: 3px solid var(--color-energy);
+    padding-bottom: 0.75rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: var(--color-energy);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Tarjetas de Contenido */
+.info-card {
+    background-color: rgba(0, 71, 171, 0.15); /* Azul semi-transparente */
+    border-left: 5px solid var(--color-energy);
+    padding: 1.25rem;
+    border-radius: 0.5rem;
+    backdrop-filter: blur(5px);
+    transition: all 0.3s ease;
+    animation: subtleFloat 5s ease-in-out infinite; /* Animación GNC */
+}
+.info-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--color-success);
+}
+
+/* Grids */
+.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Highlight Stats */
+.highlight-stat {
+    background: linear-gradient(135deg, var(--color-energy), #E63946);
+    color: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(255,107,53,0.3);
+    animation: subtleFloat 4s ease-in-out infinite 1s; /* Animación GNC */
+}
+.stat-number { font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem; }
+.stat-label { font-size: 1rem; opacity: 0.9; }
+
+/* Listas */
+ul { list-style: none; padding-left: 0; }
+ul li {
+    position: relative;
+    padding-left: 2rem;
+    margin-bottom: 0.8rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-text-dim);
+}
+ul li::before {
+    content: '▸';
+    position: absolute;
+    left: 0;
+    color: var(--color-energy);
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+/* Flujo de Proceso */
+.process-flow {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    margin: 1.5rem 0;
+    padding: 1.5rem;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+}
+.flow-item { text-align: center; flex: 1; }
+.flow-arrow { font-size: 2rem; color: var(--color-success); margin: 0 1rem; }
+.flow-icon { font-size: 2.5rem; color: var(--color-energy); margin-bottom: 1rem; }
+.flow-label { font-weight: 600; color: white; }
+
+/* Caja de énfasis */
+.emphasis-box {
+    background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), rgba(0, 78, 137, 0.2));
+    border-left: 4px solid var(--color-success);
+    padding: 1.25rem;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    font-size: 1.05rem;
+}
+
+/* --- CONTROLES DE NAVEGACIÓN --- */
+.controls {
+    background-color: var(--color-bg-dark);
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.control-btn {
+    background-color: var(--color-energy);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0.375rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.control-btn:hover:not(:disabled) {
+    background-color: #E56E00;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+}
+.control-btn:disabled {
+    background-color: #575757;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.slide-title-display {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-text-dim);
+}
+
+/* --- ESTILOS DEL NUEVO FINAL (SLIDE 20) --- */
+.final-content {
+    transition: opacity 0.5s ease-out 1s, transform 0.5s ease-out 1s;
+    z-index: 101;
+}
+
+.final-fin {
+    font-size: 6rem;
+    animation: subtleFloat 3s ease-in-out infinite;
+}
+
+.slide.active .final-content {
+    /* Animación de desvanecimiento para el contenido principal del slide 20 */
+    animation: fadeOutFinal 0.5s ease-out 2.5s forwards;
+}
+
+@keyframes fadeOutFinal {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.8); }
+}
+
+.post-credits {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 103;
+    overflow: hidden;
+    pointer-events: none; /* No bloquear el slide */
+}
+
+.post-credits-text {
+    position: absolute; /* Todos en el mismo lugar */
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--color-text-light);
+    text-shadow: 0 0 20px rgba(255,255,255,0.5);
+    opacity: 0; /* Ocultos por defecto */
+    transform: scale(0.8);
+    text-align: center;
+}
+
+/* Animación para que aparezcan y desaparezcan */
+@keyframes fadeInOut {
+    0%   { opacity: 0; transform: scale(0.8); }
+    20%  { opacity: 1; transform: scale(1); } /* Entra */
+    80%  { opacity: 1; transform: scale(1); } /* Se mantiene */
+    100% { opacity: 0; transform: scale(0.8); } /* Sale */
+}
+
+/* Aplicar animación de "post-créditos" */
+.slide.active .post-credits-text:nth-child(1) {
+    /* Inicia 3s después (cuando el "FIN" se desvanece) */
+    animation: fadeInOut 3s ease-in-out 3s forwards;
+}
+.slide.active .post-credits-text:nth-child(2) {
+    animation: fadeInOut 3s ease-in-out 6s forwards;
+}
+.slide.active .post-credits-text:nth-child(3) {
+    animation: fadeInOut 3s ease-in-out 9s forwards;
+}
+.slide.active .post-credits-text:nth-child(4) {
+    animation: fadeInOut 3s ease-in-out 12s forwards;
+}
+.slide.active .post-credits-text:nth-child(5) {
+    animation: fadeInOut 3s ease-in-out 15s forwards;
+}

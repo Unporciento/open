@@ -9,8 +9,362 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="style.css">
-</head>
+    <style>
+        /* * CSS COMBINADO Y MEJORADO
+         * Base: Estilo V2 (Azul/Naranja)
+         * Contenido: 20 Slides de V1
+         * Mejoras: Animaciones "subtleFloat", Barra de Progreso y Nuevo Final.
+        */
+
+        /* Paleta de Colores GNC: Azul (Tecnología) y Naranja (Energía) */
+        :root {
+            --color-energy: #FF7F00; /* Naranja más vibrante */
+            --color-tech: #0047AB; /* Azul Tech */
+            --color-bg-dark: #1F2937; /* Gris-Azul oscuro */
+            --color-bg-content: #111827; /* Azul casi negro */
+            --color-text-light: #F9FAFB;
+            --color-text-dim: #9CA3AF;
+            --color-success: #06D6A0; /* Verde menta */
+        }
+
+        /* Animación flotante de MinePredict */
+        @keyframes subtleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-dark);
+            color: var(--color-text-light);
+            height: 100vh;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            overflow: hidden;
+            padding-top: 5px; /* Espacio para barra de progreso */
+        }
+
+        /* (NUEVO) Barra de Progreso */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 5px;
+            background: linear-gradient(90deg, var(--color-energy), var(--color-tech));
+            width: 0%; /* Inicia en 0 */
+            z-index: 2000; /* Por encima de todo */
+            transition: width 0.4s ease-out; /* Animación suave */
+            box-shadow: 0 2px 10px rgba(255, 127, 0, 0.5);
+        }
+
+        .presentation-container {
+            display: grid;
+            grid-template-columns: 1fr; /* <- CAMBIADO: Panel de avatar eliminado */
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* --- ÁREA DE CONTENIDO --- */
+        .content-area {
+            position: relative;
+            background-color: var(--color-bg-content);
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding: 2.5rem 3rem;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none;
+            flex-direction: column;
+            pointer-events: none;
+        }
+
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: translateX(0);
+            pointer-events: auto;
+        }
+
+        .slide.prev {
+            transform: translateX(-50px);
+            opacity: 0;
+        }
+
+        .slide-content {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Contenido centrado (para portadas) */
+        .center-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Estilos de Texto */
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--color-energy), #FFD93D);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--color-text-light); /* Texto blanco para H2 */
+            border-bottom: 3px solid var(--color-energy);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--color-energy);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .subtitle {
+            font-size: 1.8rem;
+            color: rgba(255,255,255,0.8);
+            margin-top: 1rem;
+        }
+
+        /* Tarjetas de Contenido */
+        .info-card {
+            background-color: rgba(0, 71, 171, 0.15); /* Azul semi-transparente */
+            border-left: 5px solid var(--color-energy);
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease;
+            animation: subtleFloat 5s ease-in-out infinite; /* Animación GNC */
+        }
+        .info-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-success);
+        }
+
+        /* Grids */
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Highlight Stats */
+        .highlight-stat {
+            background: linear-gradient(135deg, var(--color-energy), #E63946);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255,107,53,0.3);
+            animation: subtleFloat 4s ease-in-out infinite 1s; /* Animación GNC */
+        }
+        .stat-number { font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem; }
+        .stat-label { font-size: 1rem; opacity: 0.9; }
+
+        /* Listas */
+        ul { list-style: none; padding-left: 0; }
+        ul li {
+            position: relative;
+            padding-left: 2rem;
+            margin-bottom: 0.8rem;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: var(--color-text-dim);
+        }
+        ul li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--color-energy);
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        /* Flujo de Proceso */
+        .process-flow {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+        }
+        .flow-item { text-align: center; flex: 1; }
+        .flow-arrow { font-size: 2rem; color: var(--color-success); margin: 0 1rem; }
+        .flow-icon { font-size: 2.5rem; color: var(--color-energy); margin-bottom: 1rem; }
+        .flow-label { font-weight: 600; color: white; }
+
+        /* Caja de énfasis */
+        .emphasis-box {
+            background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), rgba(0, 78, 137, 0.2));
+            border-left: 4px solid var(--color-success);
+            padding: 1.25rem;
+            border-radius: 8px;
+            margin-top: 1.5rem;
+            font-size: 1.05rem;
+        }
+
+        /* (NUEVO) Estilos para Imágenes Integradas */
+        img.slide-image-small {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 1rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        img.slide-image-full {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+
+        /* --- CONTROLES DE NAVEGACIÓN --- */
+        .controls {
+            background-color: var(--color-bg-dark);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            z-index: 100;
+        }
+
+        .control-btn {
+            background-color: var(--color-energy);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .control-btn:hover:not(:disabled) {
+            background-color: #E56E00;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
+        }
+        .control-btn:disabled {
+            background-color: #575757;
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .slide-title-display {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-text-dim);
+        }
+
+        /* --- (NUEVO) ESTILOS DEL FINAL FORMAL (SLIDE 20) --- */
+        .final-content {
+            transition: opacity 0.5s ease-out 1s, transform 0.5s ease-out 1s;
+            z-index: 101;
+        }
+
+        .final-fin {
+            font-size: 6rem;
+            animation: subtleFloat 3s ease-in-out infinite;
+        }
+
+        /* Cuando el slide 20 está activo, desvanecer el contenido principal */
+        .slide[data-index="19"].active .final-content {
+            animation: fadeOutFinal 0.5s ease-out 2.5s forwards;
+        }
+
+        @keyframes fadeOutFinal {
+            from { opacity: 1; transform: scale(1); }
+            to { opacity: 0; transform: scale(0.8); }
+        }
+
+        .post-credits {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 103;
+            overflow: hidden;
+            pointer-events: none; /* No bloquear el slide */
+        }
+
+        .post-credits-text {
+            position: absolute; /* Todos en el mismo lugar */
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--color-text-light);
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            opacity: 0; /* Ocultos por defecto */
+            transform: scale(0.8);
+            text-align: center;
+        }
+
+        /* Animación para que aparezcan y desaparezcan */
+        @keyframes fadeInOut {
+            0%   { opacity: 0; transform: scale(0.8); }
+            20%  { opacity: 1; transform: scale(1); } /* Entra */
+            80%  { opacity: 1; transform: scale(1); } /* Se mantiene */
+            100% { opacity: 0; transform: scale(0.8); } /* Sale */
+        }
+
+        /* Aplicar animación de "post-créditos" */
+        .slide.active .post-credits-text:nth-child(1) {
+            /* Inicia 3s después (cuando el "FIN" se desvanece) */
+            animation: fadeInOut 3s ease-in-out 3s forwards;
+        }
+        .slide.active .post-credits-text:nth-child(2) {
+            animation: fadeInOut 3s ease-in-out 6s forwards;
+        }
+        .slide.active .post-credits-text:nth-child(3) {
+            animation: fadeInOut 3s ease-in-out 9s forwards;
+        }
+        .slide.active .post-credits-text:nth-child(4) {
+            animation: fadeInOut 3s ease-in-out 12s forwards;
+        }
+        .slide.active .post-credits-text:nth-child(5) {
+            animation: fadeInOut 3s ease-in-out 15s forwards;
+        }
+    </style>
+    </head>
 <body>
     
     <div class="progress-bar" id="progressBar"></div>
@@ -18,7 +372,7 @@
     <div class="presentation-container">
         <div class="content-area">
             
-            <section class="slide active" data-title="Portada">
+            <section class="slide active" data-index="0" data-title="Portada">
                 <div class="slide-content center-content">
                     <h1>GAS NATURAL COMPRIMIDO</h1>
                     <p class="subtitle">Combustibles Alternativos para la Transición Energética</p>
@@ -32,7 +386,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Introducción">
+            <section class="slide" data-index="1" data-title="Introducción">
                 <div class="slide-content">
                     <h2><i class="fas fa-bolt"></i> Introducción al GNC en Chile</h2>
                     <div class="two-columns">
@@ -58,7 +412,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Composición">
+            <section class="slide" data-index="2" data-title="Composición">
                 <div class="slide-content">
                     <h2><i class="fas fa-flask"></i> Composición del Gas Natural</h2>
                     <div class="highlight-stat" style="margin-bottom: 2rem;">
@@ -80,7 +434,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Proceso">
+            <section class="slide" data-index="3" data-title="Proceso">
                 <div class="slide-content">
                     <h2><i class="fas fa-industry"></i> Proceso de Tratamiento y Compresión</h2>
                     <div class="process-flow">
@@ -125,7 +479,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Componentes">
+            <section class="slide" data-index="4" data-title="Componentes">
                 <div class="slide-content">
                     <h2><i class="fas fa-cogs"></i> Componentes del Sistema GNC</h2>
                     <div class="two-columns">
@@ -154,7 +508,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Dual-Fuel">
+            <section class="slide" data-index="5" data-title="Dual-Fuel">
                 <div class="slide-content">
                     <h2><i class="fas fa-fire"></i> Sistema Dual-Fuel (Diésel-GNC)</h2>
                     <div class="highlight-stat" style="margin-bottom: 2rem;">
@@ -176,7 +530,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="App. Pesada">
+            <section class="slide" data-index="6" data-title="App. Pesada">
                 <div class="slide-content">
                     <h2><i class="fas fa-truck-monster"></i> Aplicaciones en Maquinaria Pesada</h2>
                     <div class="two-columns">
@@ -196,7 +550,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="App. Liviana">
+            <section class="slide" data-index="7" data-title="App. Liviana">
                 <div class="slide-content">
                     <h2><i class="fas fa-car"></i> Aplicación en Vehículos Livianos</h2>
                     <div class="info-card">
@@ -228,7 +582,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Economía">
+            <section class="slide" data-index="8" data-title="Economía">
                 <div class="slide-content">
                     <h2><i class="fas fa-coins"></i> Análisis Económico</h2>
                     <div class="two-columns">
@@ -256,7 +610,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Incentivos">
+            <section class="slide" data-index="9" data-title="Incentivos">
                 <div class="slide-content">
                     <h2><i class="fas fa-handshake"></i> Incentivos y Financiamiento</h2>
                     <div class="two-columns">
@@ -282,7 +636,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Ambiente (+)">
+            <section class="slide" data-index="10" data-title="Ambiente (+)">
                 <div class="slide-content">
                     <h2><i class="fas fa-leaf"></i> Beneficios Ambientales</h2>
                     <div class="two-columns">
@@ -311,7 +665,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Desafíos (-)">
+            <section class="slide" data-index="11" data-title="Desafíos (-)">
                 <div class="slide-content">
                     <h2><i class="fas fa-exclamation-triangle"></i> Desafíos y Consideraciones</h2>
                     <div class="info-card" style="border-left: 4px solid #E63946;">
@@ -344,7 +698,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Seguridad">
+            <section class="slide" data-index="12" data-title="Seguridad">
                 <div class="slide-content">
                     <h2><i class="fas fa-shield-alt"></i> Seguridad del Sistema GNC</h2>
                     <div class="info-card">
@@ -370,7 +724,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Comparativa">
+            <section class="slide" data-index="13" data-title="Comparativa">
                 <div class="slide-content">
                     <h2><i class="fas fa-balance-scale"></i> GNC vs Otros Combustibles</h2>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
@@ -403,7 +757,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Casos de Éxito">
+            <section class="slide" data-index="14" data-title="Casos de Éxito">
                 <div class="slide-content">
                     <h2><i class="fas fa-star"></i> Casos de Éxito en Chile</h2>
                     <div class="two-columns">
@@ -432,7 +786,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Futuro">
+            <section class="slide" data-index="15" data-title="Futuro">
                 <div class="slide-content">
                     <h2><i class="fas fa-rocket"></i> Futuro del GNC en Chile</h2>
                     <div class="info-card">
@@ -465,7 +819,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Datos Clave">
+            <section class="slide" data-index="16" data-title="Datos Clave">
                 <div class="slide-content">
                     <h2><i class="fas fa-database"></i> Especificaciones Técnicas (Resumen)</h2>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
@@ -498,7 +852,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Conclusión">
+            <section class="slide" data-index="17" data-title="Conclusión">
                 <div class="slide-content">
                     <h2><i class="fas fa-check-circle"></i> Conclusiones</h2>
                     <div class="info-card">
@@ -533,7 +887,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Recomendaciones">
+            <section class="slide" data-index="18" data-title="Recomendaciones">
                 <div class="slide-content">
                     <h2><i class="fas fa-clipboard-check"></i> Recomendaciones Finales</h2>
                     <div class="two-columns">
@@ -558,7 +912,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-title="Fin">
+            <section class="slide" data-index="19" data-title="Fin">
                 <div class="slide-content center-content">
                     
                     <div class="final-content">
@@ -586,7 +940,79 @@
         <button id="nextBtn" class="control-btn">Siguiente <i class="fas fa-chevron-right ml-2"></i></button>
     </div>
 
-    <script src="script.js"></script>
-</body>
-</html>
+    <script>
+        /* script.js - Navegación GNC (Versión Formal, Sin Avatares) */
 
+        (() => {
+            const contentArea = document.querySelector('.content-area');
+            const slides = Array.from(contentArea.querySelectorAll('.slide'));
+            const slideTitleElement = document.getElementById('slideTitle');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            // (NUEVO) Referencia a la barra de progreso
+            const progressBar = document.getElementById('progressBar');
+            
+            let currentIndex = 0;
+            const totalSlides = slides.length;
+
+            function updateSlide() {
+                slides.forEach((slide, index) => {
+                    slide.classList.remove('active', 'prev');
+                    
+                    if (index === currentIndex) {
+                        slide.classList.add('active');
+                        
+                        // Actualizar el título de la diapositiva en la barra de control
+                        // Usa el atributo 'data-title' que pusimos en el HTML
+                        const title = slide.getAttribute('data-title') || 'CONTENIDO';
+                        slideTitleElement.textContent = title.toUpperCase();
+
+                    } else if (index < currentIndex) {
+                        slide.classList.add('prev');
+                    }
+                });
+
+                // (NUEVO) Actualizar la barra de progreso
+                const percentage = ((currentIndex + 1) / totalSlides) * 100;
+                progressBar.style.width = percentage + '%';
+
+                // Actualizar indicadores de navegación
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex === totalSlides - 1;
+            }
+
+            function goToNextSlide() {
+                if (currentIndex < totalSlides - 1) {
+                    currentIndex++;
+                    updateSlide();
+                }
+            }
+
+            function goToPrevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateSlide();
+                }
+            }
+
+            // Event Listeners
+            nextBtn.addEventListener('click', goToNextSlide);
+            prevBtn.addEventListener('click', goToPrevSlide);
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === ' ') {
+                    e.preventDefault();
+                    goToNextSlide();
+                } else if (e.key === 'ArrowLeft') {
+                    e.preventDefault();
+                    goToPrevSlide();
+                }
+            });
+
+            // Inicializar presentación
+            updateSlide();
+        })();
+    </script>
+    </body>
+</html>

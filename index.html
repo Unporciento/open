@@ -28,7 +28,7 @@
             50% { transform: translateY(-6px); }
         }
 
-        /* Fondo de "Gas en Movimiento" */
+        /* (NUEVO) Fondo de "Gas en Movimiento" */
         @keyframes moveGas {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -44,7 +44,7 @@
             background: radial-gradient(ellipse at bottom, var(--color-tech) 0%, var(--color-bg-dark) 100%);
             opacity: 0.3; /* Sutil */
         }
-        /* Partículas de gas */
+        /* (NUEVO) Partículas de gas */
         .gas-particles {
             position: fixed;
             top: 0;
@@ -67,7 +67,7 @@
             padding-top: 5px; /* Espacio para barra de progreso */
         }
 
-        /* Barra de Progreso */
+        /* (NUEVO) Barra de Progreso */
         .progress-bar {
             position: fixed;
             top: 0;
@@ -97,7 +97,7 @@
             height: 100%;
         }
 
-        /* Contenedor de slides horizontal */
+        /* (NUEVO) Contenedor de slides horizontal */
         .slides-wrapper {
             display: flex;
             width: 2000%; /* 100% * 20 slides */
@@ -405,7 +405,7 @@
             h2 { font-size: 1.8rem; }
             .post-credits-text { font-size: 1.5rem; }
         }
-
+        
         @media (prefers-reduced-motion: reduce) {
           /* Desactiva todas las animaciones y transiciones */
           * {
@@ -1132,4 +1132,4 @@
         })();
     </script>
     </body>
-</html> 
+</html>

@@ -9,392 +9,16 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
-    <style>
-        /* * CSS COMBINADO Y MEJORADO
-         * Base: Estilo V2 (Azul/Naranja) [cite: 284-287]
-         * Contenido: 20 Slides de V1 
-         * Mejoras: Animaciones "subtleFloat" y nuevo final.
-        */
-
-        /* Paleta de Colores GNC: Azul (Tecnología) y Naranja (Energía) */
-        :root {
-            --color-energy: #FF7F00;
-            --color-tech: #0047AB;
-            --color-bg-dark: #1F2937;
-            --color-bg-content: #111827;
-            --color-text-light: #F9FAFB;
-            --color-text-dim: #9CA3AF;
-            --color-success: #06D6A0;
-        }
-
-        /* Animación flotante de MinePredict */
-        @keyframes subtleFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-6px); }
-        }
-        
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--color-bg-dark);
-            color: var(--color-text-light);
-            height: 100vh;
-            display: grid;
-            grid-template-rows: 1fr auto;
-            overflow: hidden;
-        }
-
-        .presentation-container {
-            display: grid;
-            grid-template-columns: 3fr 1fr; /* 3/4 Contenido, 1/4 Presentador */
-            height: 100%;
-            overflow: hidden;
-        }
-
-        /* --- ÁREA DE CONTENIDO --- */
-        .content-area {
-            position: relative;
-            background-color: var(--color-bg-content);
-            overflow: hidden;
-        }
-
-        .slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            padding: 2.5rem 3rem;
-            box-sizing: border-box;
-            opacity: 0;
-            /* Transición V1 (más elegante) */
-            transform: translateX(50px);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: none;
-            flex-direction: column;
-            pointer-events: none;
-        }
-
-        .slide.active {
-            display: flex;
-            opacity: 1;
-            transform: translateX(0);
-            pointer-events: auto;
-        }
-        
-        .slide.prev {
-            transform: translateX(-50px);
-            opacity: 0;
-        }
-
-        .slide-content {
-            position: relative;
-            z-index: 2;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        /* Contenido centrado (para portadas) */
-        .center-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-
-        /* Estilos de Texto (H1 de V1, H2/H3 de V2) */
-        h1 {
-            font-size: 3.5rem;
-            font-weight: 900;
-            line-height: 1.1;
-            margin-bottom: 1rem;
-            /* Gradiente de V1 */
-            background: linear-gradient(135deg, var(--color-energy), #FFD93D);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        h2 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: var(--color-text-light);
-            border-bottom: 3px solid var(--color-energy);
-            padding-bottom: 0.75rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        h3 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            color: var(--color-energy);
-            margin-bottom: 0.75rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-        
-        /* Tarjetas de Contenido (Estilo V2) */
-        .info-card {
-            background-color: rgba(0, 71, 171, 0.15); /* Azul semi-transparente */
-            border-left: 5px solid var(--color-energy);
-            padding: 1.25rem;
-            border-radius: 0.5rem;
-            backdrop-filter: blur(5px);
-            transition: all 0.3s ease;
-            animation: subtleFloat 5s ease-in-out infinite; /* Animación GNC */
-        }
-        .info-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--color-success);
-        }
-
-        /* Grids (Estilo V1) */
-        .two-columns {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1.5rem;
-        }
-        
-        /* Highlight Stats (Estilo V1) */
-        .highlight-stat {
-            background: linear-gradient(135deg, var(--color-energy), #E63946);
-            color: white;
-            padding: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(255,107,53,0.3);
-            animation: subtleFloat 4s ease-in-out infinite 1s; /* Animación GNC */
-        }
-        .stat-number { font-size: 3rem; font-weight: 900; margin-bottom: 0.5rem; }
-        .stat-label { font-size: 1rem; opacity: 0.9; }
-
-        /* Listas (Estilo V1) */
-        ul { list-style: none; padding-left: 0; }
-        ul li {
-            position: relative;
-            padding-left: 2rem;
-            margin-bottom: 0.8rem;
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: var(--color-text-dim);
-        }
-        ul li::before {
-            content: '▸';
-            position: absolute;
-            left: 0;
-            color: var(--color-energy);
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        /* Flujo de Proceso (Estilo V1) */
-        .process-flow {
-            display: flex;
-            align-items: center;
-            justify-content: space-around;
-            margin: 1.5rem 0;
-            padding: 1.5rem;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-        }
-        .flow-item { text-align: center; flex: 1; }
-        .flow-arrow { font-size: 2rem; color: var(--color-success); margin: 0 1rem; }
-        .flow-icon { font-size: 2.5rem; color: var(--color-energy); margin-bottom: 1rem; }
-        .flow-label { font-weight: 600; color: white; }
-
-        /* Caja de énfasis (Estilo V1) */
-        .emphasis-box {
-            background: linear-gradient(135deg, rgba(6, 214, 160, 0.2), rgba(0, 78, 137, 0.2));
-            border-left: 4px solid var(--color-success);
-            padding: 1.25rem;
-            border-radius: 8px;
-            margin-top: 1.5rem;
-            font-size: 1.05rem;
-        }
-
-        /* --- BARRA LATERAL DEL PRESENTADOR --- */
-        .presenter-sidebar {
-            background-color: var(--color-tech);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: flex-start; /* Alineado arriba */
-            padding: 2.5rem 1rem;
-            text-align: center;
-            box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
-            transition: background-color 0.5s;
-        }
-
-        .presenter-avatar-container {
-            width: 240px;
-            height: 320px;
-            border: 4px solid var(--color-energy);
-            border-radius: 0.5rem;
-            margin-bottom: 1.5rem;
-            overflow: hidden;
-            background-color: #002D62;
-            display: flex;
-            align-items: center; /* Centrado */
-            justify-content: center;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
-            transition: border-color 0.5s;
-        }
-
-        .presenter-avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: top center;
-            transition: transform 0.3s ease;
-        }
-        
-        .presenter-avatar-container:hover .presenter-avatar-img {
-            transform: scale(1.05);
-        }
-
-        .presenter-info { width: 100%; }
-        .presenter-name {
-            font-size: 1.75rem;
-            font-weight: 700;
-            color: var(--color-energy);
-            margin-top: 1rem;
-            line-height: 1.2;
-        }
-        .presenter-role {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--color-text-dim);
-            text-transform: uppercase;
-        }
-        
-        /* Contador (Estilo V1) */
-        .slide-counter {
-            margin-top: auto;
-            padding: 1rem;
-            background: rgba(0,0,0,0.3);
-            border-radius: 8px;
-            text-align: center;
-            width: 100%;
-        }
-        .slide-counter-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--color-energy);
-        }
-        .slide-counter-total {
-            font-size: 0.9rem;
-            color: rgba(255,255,255,0.6);
-            margin-top: 0.25rem;
-        }
-
-
-        /* --- CONTROLES DE NAVEGACIÓN --- */
-        .controls {
-            background-color: var(--color-bg-dark);
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .control-btn {
-            background-color: var(--color-energy);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 0.375rem;
-            font-weight: 600;
-            transition: all 0.3s;
-            cursor: pointer;
-            border: none;
-            font-size: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .control-btn:hover:not(:disabled) {
-            background-color: #E56E00;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255,107,53,0.4);
-        }
-        .control-btn:disabled {
-            background-color: #575757;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-        
-        .slide-title-display {
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: var(--color-text-dim);
-        }
-        
-        /* --- ESTILOS DEL NUEVO FINAL (SLIDE 20) --- */
-        .final-fin {
-            font-size: 6rem;
-            animation: subtleFloat 3s ease-in-out infinite;
-        }
-        
-        .post-credits {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 103;
-            overflow: hidden;
-            pointer-events: none; /* No bloquear el slide */
-        }
-
-        .post-credits-text {
-            position: absolute;
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: var(--color-text-light);
-            text-shadow: 0 0 20px rgba(255,255,255,0.5);
-            opacity: 0;
-            transform: scale(0.8);
-            text-align: center;
-        }
-
-        @keyframes fadeInOut {
-            0%   { opacity: 0; transform: scale(0.8); }
-            20%  { opacity: 1; transform: scale(1); }
-            80%  { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; transform: scale(0.8); }
-        }
-
-        /* Aplicar animación de "post-créditos" */
-        .slide.active .post-credits-text:nth-child(1) {
-            animation: fadeInOut 3s ease-in-out 1s forwards;
-        }
-        .slide.active .post-credits-text:nth-child(2) {
-            animation: fadeInOut 3s ease-in-out 4s forwards;
-        }
-        .slide.active .post-credits-text:nth-child(3) {
-            animation: fadeInOut 3s ease-in-out 7s forwards;
-        }
-        .slide.active .post-credits-text:nth-child(4) {
-            animation: fadeInOut 3s ease-in-out 10s forwards;
-        }
-        .slide.active .post-credits-text:nth-child(5) {
-            animation: fadeInOut 3s ease-in-out 13s forwards;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    
+    <div class="progress-bar" id="progressBar"></div>
 
     <div class="presentation-container">
         <div class="content-area">
             
-            <section class="slide active" data-presenter="Equipo" data-title="Portada">
+            <section class="slide active" data-title="Portada">
                 <div class="slide-content center-content">
                     <h1>GAS NATURAL COMPRIMIDO</h1>
                     <p class="text-3xl text-gray-300">Combustibles Alternativos para la Transición Energética</p>
@@ -408,7 +32,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Simón" data-title="Introducción">
+            <section class="slide" data-title="Introducción">
                 <div class="slide-content">
                     <h2><i class="fas fa-bolt"></i> Introducción al GNC en Chile</h2>
                     <div class="two-columns">
@@ -434,7 +58,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Simón" data-title="Composición">
+            <section class="slide" data-title="Composición">
                 <div class="slide-content">
                     <h2><i class="fas fa-flask"></i> Composición del Gas Natural</h2>
                     <div class="highlight-stat" style="margin-bottom: 2rem;">
@@ -456,7 +80,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Simón" data-title="Proceso">
+            <section class="slide" data-title="Proceso">
                 <div class="slide-content">
                     <h2><i class="fas fa-industry"></i> Proceso de Tratamiento y Compresión</h2>
                     <div class="process-flow">
@@ -501,7 +125,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Julio" data-title="Componentes">
+            <section class="slide" data-title="Componentes">
                 <div class="slide-content">
                     <h2><i class="fas fa-cogs"></i> Componentes del Sistema GNC</h2>
                     <div class="two-columns">
@@ -536,7 +160,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Julio" data-title="Dual-Fuel">
+            <section class="slide" data-title="Dual-Fuel">
                 <div class="slide-content">
                     <h2><i class="fas fa-fire"></i> Sistema Dual-Fuel (Diésel-GNC)</h2>
                     <div class="highlight-stat" style="margin-bottom: 2rem;">
@@ -558,7 +182,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Renato" data-title="App. Pesada">
+            <section class="slide" data-title="App. Pesada">
                 <div class="slide-content">
                     <h2><i class="fas fa-truck-monster"></i> Aplicaciones en Maquinaria Pesada</h2>
                     <div class="two-columns">
@@ -587,7 +211,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Renato" data-title="App. Liviana">
+            <section class="slide" data-title="App. Liviana">
                 <div class="slide-content">
                     <h2><i class="fas fa-car"></i> Aplicación en Vehículos Livianos</h2>
                     <div class="info-card">
@@ -619,7 +243,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Wiljer" data-title="Economía">
+            <section class="slide" data-title="Economía">
                 <div class="slide-content">
                     <h2><i class="fas fa-coins"></i> Análisis Económico</h2>
                     <div class="two-columns">
@@ -647,7 +271,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Wiljer" data-title="Incentivos">
+            <section class="slide" data-title="Incentivos">
                 <div class="slide-content">
                     <h2><i class="fas fa-handshake"></i> Incentivos y Financiamiento</h2>
                     <div class="two-columns">
@@ -673,7 +297,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Wiljer" data-title="Ambiente (+)">
+            <section class="slide" data-title="Ambiente (+)">
                 <div class="slide-content">
                     <h2><i class="fas fa-leaf"></i> Beneficios Ambientales</h2>
                     <div class="two-columns">
@@ -702,7 +326,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Julio" data-title="Desafíos (-)">
+            <section class="slide" data-title="Desafíos (-)">
                 <div class="slide-content">
                     <h2><i class="fas fa-exclamation-triangle"></i> Desafíos y Consideraciones</h2>
                     <div class="info-card" style="border-left: 4px solid #E63946;">
@@ -735,7 +359,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Julio" data-title="Seguridad">
+            <section class="slide" data-title="Seguridad">
                 <div class="slide-content">
                     <h2><i class="fas fa-shield-alt"></i> Seguridad del Sistema GNC</h2>
                     <div class="info-card">
@@ -761,7 +385,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Simón" data-title="Comparativa">
+            <section class="slide" data-title="Comparativa">
                 <div class="slide-content">
                     <h2><i class="fas fa-balance-scale"></i> GNC vs Otros Combustibles</h2>
                     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem;">
@@ -794,7 +418,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Renato" data-title="Casos de Éxito">
+            <section class="slide" data-title="Casos de Éxito">
                 <div class="slide-content">
                     <h2><i class="fas fa-star"></i> Casos de Éxito en Chile</h2>
                     <div class="two-columns">
@@ -823,7 +447,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Julio" data-title="Futuro">
+            <section class="slide" data-title="Futuro">
                 <div class="slide-content">
                     <h2><i class="fas fa-rocket"></i> Futuro del GNC en Chile</h2>
                     <div class="info-card">
@@ -856,7 +480,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Simón" data-title="Datos Clave">
+            <section class="slide" data-title="Datos Clave">
                 <div class="slide-content">
                     <h2><i class="fas fa-database"></i> Especificaciones Técnicas (Resumen)</h2>
                     <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
@@ -889,7 +513,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Wiljer" data-title="Conclusión">
+            <section class="slide" data-title="Conclusión">
                 <div class="slide-content">
                     <h2><i class="fas fa-check-circle"></i> Conclusiones</h2>
                     <div class="info-card">
@@ -924,7 +548,7 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Wiljer" data-title="Recomendaciones">
+            <section class="slide" data-title="Recomendaciones">
                 <div class="slide-content">
                     <h2><i class="fas fa-clipboard-check"></i> Recomendaciones Finales</h2>
                     <div class="two-columns">
@@ -949,12 +573,12 @@
                 </div>
             </section>
 
-            <section class="slide" data-presenter="Equipo" data-title="Fin">
+            <section class="slide" data-title="Fin">
                 <div class="slide-content center-content">
                     
                     <div class="final-content">
                         <h1 class="final-fin">FIN</h1>
-                        <p class="text-3xl text-gray-400 mt-4 mb-12">Evaluación 4 - GNC</p>
+                        <p class_=("text-3xl text-gray-400 mt-4 mb-12")>Evaluación 4 - GNC</p>
                         <h3 class="text-4xl text-white mt-12"><i class="fas fa-comments"></i> Preguntas</h3>
                     </div>
 
@@ -970,21 +594,7 @@
 
         </div>
 
-        <div class="presenter-sidebar">
-            <div class="presenter-avatar-container" id="presenterAvatarContainer">
-                <img id="presenterAvatarImg" src="grupo.jpg" alt="Avatar del Presentador" class="presenter-avatar-img">
-            </div>
-            <div class="presenter-info">
-                <div class="presenter-name" id="presenterName">EQUIPO</div>
-                <div class="presenter-role" id="presenterRole">Presentación Grupal</div>
-            </div>
-            
-            <div class="slide-counter">
-                <div class="slide-counter-number" id="slideNumber">1</div>
-                <div class="slide-counter-total" id="slideTotal">de 20</div>
-            </div>
         </div>
-    </div>
 
     <div class="controls">
         <button id="prevBtn" class="control-btn"><i class="fas fa-chevron-left mr-2"></i> Anterior</button>
@@ -992,90 +602,6 @@
         <button id="nextBtn" class="control-btn">Siguiente <i class="fas fa-chevron-right ml-2"></i></button>
     </div>
 
-    <script>
-        const contentArea = document.querySelector('.content-area');
-        const slides = Array.from(contentArea.querySelectorAll('.slide'));
-        const presenterNameElement = document.getElementById('presenterName');
-        const presenterRoleElement = document.getElementById('presenterRole');
-        const presenterAvatarImg = document.getElementById('presenterAvatarImg');
-        const slideNumberElement = document.getElementById('slideNumber');
-        const slideTotalElement = document.getElementById('slideTotal');
-        const slideTitleElement = document.getElementById('slideTitle');
-        const prevBtn = document.getElementById('prevBtn');
-        const nextBtn = document.getElementById('nextBtn');
-        
-        let currentIndex = 0;
-        const totalSlides = slides.length;
-
-        // --- MAPEO DE PRESENTADORES (Usando nombres de archivos subidos) ---
-        const presenterMap = {
-            'Equipo': { name: 'EQUIPO COMPLETO', role: 'Presentación Grupal', img: 'grupo.jpg' },
-            'Simón': { name: 'SIMÓN OLIVARES', role: 'Contexto y Proceso', img: 'grupo.jpg' }, // Asumiendo que Simón usa la grupal o una propia
-            'Julio': { name: 'JULIO SINISTERRA', role: 'Sistemas y Funcionamiento', img: 'julio.jpg' },
-            'Renato': { name: 'RENATO BÓRQUEZ', role: 'Aplicaciones y Casos', img: 'renato.jpg' },
-            'Wiljer': { name: 'WILJER MAMANI', role: 'Economía e Impacto', img: 'wiljer.jpg' }
-        };
-
-        function updateSlide() {
-            slides.forEach((slide, index) => {
-                slide.classList.remove('active', 'prev');
-                if (index === currentIndex) {
-                    slide.classList.add('active');
-                    
-                    const presenterKey = slide.getAttribute('data-presenter') || 'Equipo';
-                    const presenter = presenterMap[presenterKey] || presenterMap['Equipo'];
-                    const title = slide.getAttribute('data-title') || 'PORTADA';
-                    
-                    // Actualizar el avatar del presentador
-                    presenterNameElement.textContent = presenter.name;
-                    presenterRoleElement.textContent = presenter.role;
-                    presenterAvatarImg.src = presenter.img;
-
-                    // Actualizar el título de la diapositiva en la barra de control
-                    slideTitleElement.textContent = title.toUpperCase();
-
-                } else if (index < currentIndex) {
-                    slide.classList.add('prev');
-                }
-            });
-
-            // Actualizar indicadores de navegación
-            slideNumberElement.textContent = (currentIndex + 1);
-            slideTotalElement.textContent = 'de ' + totalSlides;
-            prevBtn.disabled = currentIndex === 0;
-            nextBtn.disabled = currentIndex === totalSlides - 1;
-        }
-
-        function goToNextSlide() {
-            if (currentIndex < totalSlides - 1) {
-                currentIndex++;
-                updateSlide();
-            }
-        }
-
-        function goToPrevSlide() {
-            if (currentIndex > 0) {
-                currentIndex--;
-                updateSlide();
-            }
-        }
-
-        // Event Listeners
-        nextBtn.addEventListener('click', goToNextSlide);
-        prevBtn.addEventListener('click', goToPrevSlide);
-        
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight' || e.key === ' ') {
-                e.preventDefault();
-                goToNextSlide();
-            } else if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                goToPrevSlide();
-            }
-        });
-
-        // Inicializar presentación
-        updateSlide();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>

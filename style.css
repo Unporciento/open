@@ -6,13 +6,13 @@
 
 /* Paleta de Colores GNC: Azul (Tecnología) y Naranja (Energía) */
 :root {
-    --color-energy: #FF7F00;
-    --color-tech: #0047AB;
-    --color-bg-dark: #1F2937;
-    --color-bg-content: #111827;
+    --color-energy: #FF7F00; /* Naranja más vibrante */
+    --color-tech: #0047AB; /* Azul Tech */
+    --color-bg-dark: #1F2937; /* Gris-Azul oscuro */
+    --color-bg-content: #111827; /* Azul casi negro */
     --color-text-light: #F9FAFB;
     --color-text-dim: #9CA3AF;
-    --color-success: #06D6A0;
+    --color-success: #06D6A0; /* Verde menta */
 }
 
 /* Animación flotante de MinePredict */
@@ -121,7 +121,7 @@ h1 {
 h2 {
     font-size: 2.2rem;
     font-weight: 700;
-    color: var(--color-text-light);
+    color: var(--color-text-light); /* Texto blanco para H2 */
     border-bottom: 3px solid var(--color-energy);
     padding-bottom: 0.75rem;
     margin-bottom: 1.5rem;
@@ -138,6 +138,12 @@ h3 {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+}
+
+.subtitle {
+    font-size: 1.8rem;
+    color: rgba(255,255,255,0.8);
+    margin-top: 1rem;
 }
 
 /* Tarjetas de Contenido */
@@ -219,6 +225,21 @@ ul li::before {
     font-size: 1.05rem;
 }
 
+/* (NUEVO) Estilos para Imágenes Integradas */
+img.slide-image-small {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-top: 1rem;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+img.slide-image-full {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+
 /* --- CONTROLES DE NAVEGACIÓN --- */
 .controls {
     background-color: var(--color-bg-dark);
@@ -227,6 +248,8 @@ ul li::before {
     justify-content: space-between;
     align-items: center;
     border-top: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 100;
 }
 
 .control-btn {
@@ -260,7 +283,7 @@ ul li::before {
     color: var(--color-text-dim);
 }
 
-/* --- ESTILOS DEL NUEVO FINAL (SLIDE 20) --- */
+/* --- (NUEVO) ESTILOS DEL FINAL FORMAL (SLIDE 20) --- */
 .final-content {
     transition: opacity 0.5s ease-out 1s, transform 0.5s ease-out 1s;
     z-index: 101;
@@ -271,8 +294,8 @@ ul li::before {
     animation: subtleFloat 3s ease-in-out infinite;
 }
 
-.slide.active .final-content {
-    /* Animación de desvanecimiento para el contenido principal del slide 20 */
+/* Cuando el slide 20 está activo, desvanecer el contenido principal */
+.slide[data-index="19"].active .final-content {
     animation: fadeOutFinal 0.5s ease-out 2.5s forwards;
 }
 

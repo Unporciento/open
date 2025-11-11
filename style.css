@@ -47,6 +47,7 @@ body {
     flex-direction: column;
     flex-shrink: 0;
     box-shadow: 4px 0 15px rgba(0,0,0,0.05);
+    z-index: 100;
 }
 
 .nav-logo {
@@ -201,6 +202,7 @@ h3 {
     border-radius: 0.5rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
     transition: all 0.3s ease;
+    animation: subtleFloat 5s ease-in-out infinite;
 }
 .info-card:hover {
     transform: translateY(-4px);
@@ -245,12 +247,13 @@ ul li::before {
     font-size: 1.5rem;
     font-weight: bold;
 }
-/* Arreglo para ** en negrita */
+/* (NUEVO) Arreglo para ** en negrita */
 ul li strong {
     font-weight: 700;
     color: var(--color-text-dark);
 }
-/* Arreglo para *** en cursiva y negrita */
+/* (NUEVO) Arreglo para *** en cursiva y negrita */
+ul li em strong, ul li strong em,
 ul li em {
     font-style: italic;
     font-weight: 700;
@@ -285,7 +288,7 @@ ul li em {
 }
 .emphasis-box strong { color: var(--color-tech); }
 
-/* Estilos para Imágenes Integradas */
+/* (NUEVO) Estilos para Imágenes Integradas */
 img.slide-image-small {
     width: 100%;
     height: auto;
@@ -304,7 +307,7 @@ img.slide-image-full {
     display: none; /* Oculto, la navegación es por scroll y barra lateral */
 }
         
-/* --- ESTILOS DEL FINAL FORMAL (SLIDE 13) --- */
+/* --- (NUEVO) ESTILOS DEL FINAL FORMAL (SLIDE 13) --- */
 .final-content {
     transition: opacity 0.5s ease-out 1s, transform 0.5s ease-out 1s;
     z-index: 101;
@@ -316,7 +319,7 @@ img.slide-image-full {
 }
 
 /* Cuando el slide 13 está activo, desvanecer el contenido principal */
-.slide[data-index="12"].active .final-content {
+.slide[id="slide-13"].active .final-content {
     animation: fadeOutFinal 0.5s ease-out 2.5s forwards;
 }
 
@@ -375,16 +378,20 @@ img.slide-image-full {
 /* Estilos para Mobile (simplifica la vista) */
 @media (max-width: 1024px) {
     body {
-        grid-template-rows: 1fr; /* Sin controles abajo */
-    }
-    .presentation-container {
-        grid-template-columns: 1fr; /* Colapsa la barra lateral */
+        display: block; /* Vuelve al flujo normal */
+        overflow: auto; /* Permite scroll vertical normal */
     }
     .side-nav {
         display: none; /* Oculta la barra lateral en móvil */
     }
+    .content-area {
+        overflow-y: visible;
+        overflow-x: hidden;
+    }
     .slide {
-        padding: 2rem 1.5rem;
+        padding: 2.5rem 1.5rem;
+        height: auto; /* Altura automática */
+        min-height: 100vh; /* Pero al menos 100% de la pantalla */
     }
     .two-columns {
         grid-template-columns: 1fr; /* Apila las columnas */
@@ -392,4 +399,13 @@ img.slide-image-full {
     h1 { font-size: 2.5rem; }
     h2 { font-size: 1.8rem; }
     .post-credits-text { font-size: 1.5rem; }
-} 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Desactiva todas las animaciones y transiciones */
+  * {
+    animation: none !important;
+    transition: none !imporant;
+    scroll-behavior: auto !important;
+  }
+}

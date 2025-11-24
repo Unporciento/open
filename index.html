@@ -174,7 +174,6 @@
             align-items: center;
             background: transparent;
         }
-        
         .portada-img { width: 100%; height: 100%; object-fit: contain; }
 
         /* --- CONTROLES --- */
@@ -258,25 +257,29 @@
             </div>
         </div>
 
-        <!-- SLIDE 2: IMPORTANCIA (SIN IMAGEN, SOLO INFO) -->
+        <!-- SLIDE 2: IMPORTANCIA (SOLO TEXTO, SIN IMAGEN) -->
         <div class="slide" id="slide2">
             <div class="control-panel">
                 <h2>¿Por qué es vital la Simbología?</h2>
-                <!-- DISEÑO LIMPIO SIN FOTOS -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
-                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition">
-                        <h3 style="color: #64b5f6; border-bottom: 1px solid #64b5f6; padding-bottom: 10px; margin-bottom: 15px;"><i class="fas fa-globe"></i> Lenguaje Universal</h3>
-                        <p>Permite a nuestros técnicos entender planos de maquinaria internacional (alemana, americana, asiática) sin barreras de idioma.</p>
+                <p class="mb-8 text-center" style="font-size: 1.2rem; color: #b3d9ff;">Es el idioma común que nos permite resolver problemas sin importar el origen de la máquina.</p>
+                <!-- DISEÑO LIMPIO DE 3 COLUMNAS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
+                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition text-center">
+                        <i class="fas fa-globe text-4xl text-blue-400 mb-4"></i>
+                        <h3 style="color: #fff; margin-bottom: 10px;">Lenguaje Universal</h3>
+                        <p style="font-size: 0.95rem;">Permite entender planos de maquinaria alemana, americana o asiática sin barreras de idioma.</p>
                     </div>
                     
-                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition">
-                        <h3 style="color: #64b5f6; border-bottom: 1px solid #64b5f6; padding-bottom: 10px; margin-bottom: 15px;"><i class="fas fa-ruler-combined"></i> Norma ISO 1219</h3>
-                        <p>Trabajamos bajo estándares mundiales. Esto asegura consistencia, seguridad y profesionalismo en cada reparación o diseño.</p>
+                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition text-center">
+                        <i class="fas fa-ruler-combined text-4xl text-blue-400 mb-4"></i>
+                        <h3 style="color: #fff; margin-bottom: 10px;">Estándar ISO 1219</h3>
+                        <p style="font-size: 0.95rem;">Trabajamos bajo normas internacionales para asegurar consistencia y profesionalismo en cada servicio.</p>
                     </div>
 
-                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition">
-                        <h3 style="color: #ffcc00; border-bottom: 1px solid #ffcc00; padding-bottom: 10px; margin-bottom: 15px;"><i class="fas fa-bolt"></i> Diagnóstico Rápido</h3>
-                        <p>Es la herramienta #1 para el troubleshooting. Leer el plano permite encontrar la falla lógica antes de desmontar componentes físicos.</p>
+                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition text-center">
+                        <i class="fas fa-bolt text-4xl text-yellow-400 mb-4"></i>
+                        <h3 style="color: #ffcc00; margin-bottom: 10px;">Diagnóstico Rápido</h3>
+                        <p style="font-size: 0.95rem;">La herramienta #1 para el troubleshooting. Leer el plano permite encontrar la falla antes de desarmar.</p>
                     </div>
                 </div>
             </div>
@@ -419,8 +422,30 @@
             </div>
         </div>
 
-        <!-- SLIDE 10: ERRORES COMUNES -->
+        <!-- SLIDE 10: NUEVA SECCIÓN DE CIRCUITOS REALES (NUEVO) -->
         <div class="slide" id="slide10">
+            <div class="control-panel">
+                <h2>Análisis de Circuitos Complejos</h2>
+                <p class="mb-4">Aplicación real de la simbología en sistemas de potencia y control.</p>
+                <div class="grid grid-cols-2 gap-8 h-full">
+                    <div class="flex flex-col">
+                        <h3 style="font-size: 1rem; color: #b3d9ff; margin-bottom: 10px;">Esquema de Potencia</h3>
+                        <div class="tech-img-container flex-1 bg-white">
+                            <img src="Hydraulic-principle_Q320.jpg" class="tech-img" alt="Circuito Hidráulico 1">
+                        </div>
+                    </div>
+                    <div class="flex flex-col">
+                        <h3 style="font-size: 1rem; color: #b3d9ff; margin-bottom: 10px;">Sistema de Control y Actuadores</h3>
+                        <div class="tech-img-container flex-1 bg-white">
+                            <img src="OIP.webp" class="tech-img" alt="Circuito Hidráulico 2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: ERRORES COMUNES -->
+        <div class="slide" id="slide11">
             <div class="control-panel">
                 <h2><i class="fas fa-exclamation-triangle text-yellow-400"></i> Errores Comunes</h2>
                 <div class="grid grid-cols-2 gap-6 mt-6">
@@ -444,8 +469,8 @@
             </div>
         </div>
 
-        <!-- SLIDE 11: CIERRE TÉCNICO -->
-        <div class="slide" id="slide11">
+        <!-- SLIDE 12: CIERRE TÉCNICO -->
+        <div class="slide" id="slide12">
             <div class="control-panel">
                 <h2>Conclusión Técnica</h2>
                 <ul class="space-y-4 text-lg">
@@ -460,8 +485,8 @@
             </div>
         </div>
 
-        <!-- SLIDE 12: FINAL -->
-        <div class="slide" id="slide12">
+        <!-- SLIDE 13: FINAL -->
+        <div class="slide" id="slide13">
             <div class="control-panel text-center" style="justify-content: center;">
                 
                 <h1 class="fade-in-text" id="finalTitle" style="font-size: 4rem; margin-bottom: 40px;">¡Muchas Gracias!</h1>
@@ -487,14 +512,14 @@
 
     </div>
 
-    <div class="slide-number" id="slideNumber">1 / 12</div>
+    <div class="slide-number" id="slideNumber">1 / 13</div>
 
     <button id="prevBtn" class="nav-btn" onclick="changeSlide(-1)">❮ ANTERIOR</button>
     <button id="nextBtn" class="nav-btn" onclick="changeSlide(1)">SIGUIENTE ❯</button>
 
     <script>
         let currentSlide = 1;
-        const totalSlides = 12;
+        const totalSlides = 13;
 
         function changeSlide(direction) {
             document.getElementById(`slide${currentSlide}`).classList.remove('active');
@@ -505,7 +530,8 @@
             document.getElementById(`slide${currentSlide}`).classList.add('active');
             document.getElementById('slideNumber').innerText = `${currentSlide} / ${totalSlides}`;
 
-            if (currentSlide === 12) {
+            // Animación Slide Final
+            if (currentSlide === 13) {
                 document.querySelectorAll('.fade-in-text').forEach(el => el.classList.remove('visible'));
                 setTimeout(() => { document.getElementById('finalTitle').classList.add('visible'); }, 500);
                 setTimeout(() => { document.getElementById('finalQuote1').classList.add('visible'); }, 2000);

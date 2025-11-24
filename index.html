@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simbología Hidráulica - Talleres Lucas</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Roboto:wght@300;400;700&display=swap');
+
+        /* --- COLORES CORPORATIVOS TALLERES LUCAS --- */
+        :root {
+            --lucas-blue: #0056b3;
+            --lucas-dark: #002a5c;
+            --industrial-grey: #1f2937;
+            --lucas-yellow: #ffcc00;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--industrial-grey);
+            color: white;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- FONDO INDUSTRIAL --- */
+        .bg-industrial {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, var(--lucas-dark) 0%, #000000 100%);
+            z-index: -2;
+        }
+
+        .tech-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+        }
+
+        /* --- HEADER --- */
+        header {
+            background: white;
+            height: 80px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 40px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+            position: relative;
+            z-index: 50;
+            border-bottom: 4px solid var(--lucas-blue);
+        }
+
+        .logo-img { height: 55px; width: auto; object-fit: contain; }
+
+        .presenter-info { text-align: right; color: var(--lucas-dark); }
+        .presenter-name { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1.1rem; text-transform: uppercase; }
+        .presenter-role { font-size: 0.8rem; color: #666; }
+
+        /* --- SLIDES --- */
+        .slider-container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+            transform: translateX(50px);
+        }
+
+        .slide.active { opacity: 1; pointer-events: auto; transform: translateX(0); }
+
+        /* --- TARJETAS --- */
+        .control-panel {
+            background: rgba(0, 42, 92, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 95%;
+            max-width: 1600px;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .control-panel::-webkit-scrollbar { width: 6px; }
+        .control-panel::-webkit-scrollbar-thumb { background: var(--lucas-blue); border-radius: 4px; }
+
+        /* --- TIPOGRAFÍA --- */
+        h1 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(0, 86, 179, 0.8);
+        }
+
+        h2 {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1.8rem;
+            color: #64b5f6;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid #64b5f6;
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        h3 { font-size: 1.2rem; color: var(--lucas-yellow); font-weight: 700; margin-bottom: 0.5rem; text-transform: uppercase; }
+        p, li { font-size: 1rem; line-height: 1.5; color: #e0e0e0; margin-bottom: 0.5rem; }
+        li { list-style: none; position: relative; padding-left: 15px; }
+        li::before { content: '■'; color: var(--lucas-blue); position: absolute; left: 0; font-size: 0.7em; top: 5px; }
+
+        /* --- IMÁGENES TÉCNICAS --- */
+        .tech-img-container {
+            background: white;
+            padding: 5px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        .tech-img { max-width: 100%; max-height: 350px; object-fit: contain; transition: transform 0.3s; }
+        .tech-img:hover { transform: scale(1.5); cursor: zoom-in; }
+
+        /* --- PORTADA --- */
+        .portada-img-container {
+            width: 100%;
+            max-width: 900px;
+            height: auto;
+            max-height: 500px;
+            overflow: hidden;
+            border-radius: 8px;
+            margin: 0 auto 20px auto;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: transparent;
+        }
+        
+        .portada-img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* --- CONTROLES --- */
+        .nav-btn {
+            position: absolute;
+            bottom: 10px;
+            padding: 6px 20px;
+            background: var(--lucas-blue);
+            border: none;
+            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            opacity: 0.7;
+        }
+        .nav-btn:hover { background: #004494; transform: translateY(-1px); opacity: 1; }
+        #prevBtn { left: 20px; }
+        #nextBtn { right: 20px; }
+        
+        .slide-number {
+            position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
+            font-family: 'Rajdhani', sans-serif; font-size: 1rem; color: rgba(255,255,255,0.3); font-weight: 700;
+        }
+
+        /* --- FINAL --- */
+        .final-quote {
+            font-size: 1.5rem;
+            font-style: italic;
+            color: white;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 30px;
+            margin-top: 20px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .fade-in-text {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+        }
+        
+        .slide.active .fade-in-text.visible { opacity: 1; transform: translateY(0); }
+
+    </style>
+</head>
+<body>
+
+    <div class="bg-industrial"></div>
+    <div class="tech-grid"></div>
+
+    <header>
+        <img src="Captura de pantalla 2025-11-24 165120.png" alt="Talleres Lucas Logo" class="logo-img">
+        <div class="presenter-info">
+            <div class="presenter-name">Wiljer Mamani Sejas</div>
+            <div class="presenter-role">Presentador</div>
+        </div>
+    </header>
+
+    <div class="slider-container">
+
+        <!-- SLIDE 1: PORTADA -->
+        <div class="slide active" id="slide1">
+            <div class="control-panel" style="text-align: center; justify-content: center; align-items: center;">
+                <div class="portada-img-container">
+                    <img src="Principal.jpg" alt="Equipo Talleres Lucas" class="portada-img">
+                </div>
+                <h1>Simbología Hidráulica Intermedia</h1>
+                <h2 style="border: none; color: #b3d9ff; font-size: 1.4rem;">El Lenguaje de los Sistemas de Fluido</h2>
+                <div style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.3); padding-top: 10px; width: 40%;">
+                    <p style="color: var(--lucas-yellow); font-weight: bold; font-size: 0.9rem;">CAPACITACIÓN INTERNA 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: IMPORTANCIA (SIN IMAGEN, SOLO INFO) -->
+        <div class="slide" id="slide2">
+            <div class="control-panel">
+                <h2>¿Por qué es vital la Simbología?</h2>
+                <!-- DISEÑO LIMPIO SIN FOTOS -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition">
+                        <h3 style="color: #64b5f6; border-bottom: 1px solid #64b5f6; padding-bottom: 10px; margin-bottom: 15px;"><i class="fas fa-globe"></i> Lenguaje Universal</h3>
+                        <p>Permite a nuestros técnicos entender planos de maquinaria internacional (alemana, americana, asiática) sin barreras de idioma.</p>
+                    </div>
+                    
+                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition">
+                        <h3 style="color: #64b5f6; border-bottom: 1px solid #64b5f6; padding-bottom: 10px; margin-bottom: 15px;"><i class="fas fa-ruler-combined"></i> Norma ISO 1219</h3>
+                        <p>Trabajamos bajo estándares mundiales. Esto asegura consistencia, seguridad y profesionalismo en cada reparación o diseño.</p>
+                    </div>
+
+                    <div class="bg-white/5 p-6 rounded-lg border border-white/10 hover:bg-white/10 transition">
+                        <h3 style="color: #ffcc00; border-bottom: 1px solid #ffcc00; padding-bottom: 10px; margin-bottom: 15px;"><i class="fas fa-bolt"></i> Diagnóstico Rápido</h3>
+                        <p>Es la herramienta #1 para el troubleshooting. Leer el plano permite encontrar la falla lógica antes de desmontar componentes físicos.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: BÁSICOS -->
+        <div class="slide" id="slide3">
+            <div class="control-panel">
+                <h2>Repaso: Bombas y Motores</h2>
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <ul class="space-y-4">
+                            <li><b>Bomba Hidráulica:</b> Triángulo lleno hacia <span class="text-yellow-400">AFUERA</span>.</li>
+                            <li><b>Motor Hidráulico:</b> Triángulo lleno hacia <span class="text-yellow-400">ADENTRO</span>.</li>
+                            <li><b>Cilindros:</b> Lineales. Simple efecto (1 vía) o Doble efecto (2 vías).</li>
+                        </ul>
+                        <div class="mt-6 p-4 bg-white/10 rounded border-l-4 border-yellow-400">
+                            <p class="text-sm"><b>Regla de Oro:</b> Si la flecha cruza el símbolo, es de caudal <b>VARIABLE</b>.</p>
+                        </div>
+                    </div>
+                    <div class="tech-img-container">
+                        <img src="mosaico-de-simbolos-800x500.jpg" class="tech-img" alt="Símbolos Bombas">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: ACTUADORES -->
+        <div class="slide" id="slide4">
+            <div class="control-panel">
+                <h2>Actuadores Lineales</h2>
+                <div class="flex flex-col h-full">
+                    <p class="mb-4">Identificar el tipo exacto es crucial para el conexionado correcto en terreno.</p>
+                    <div class="tech-img-container flex-1">
+                        <img src="Simbologia actuadores.webp" class="tech-img" style="max-height: 400px;" alt="Actuadores">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: VÁLVULAS DIRECCIONALES -->
+        <div class="slide" id="slide5">
+            <div class="control-panel">
+                <h2>Válvulas Direccionales</h2>
+                <div class="grid grid-cols-2 gap-8">
+                    <div class="tech-img-container">
+                        <img src="bg7.webp" class="tech-img" alt="Válvulas Direccionales">
+                    </div>
+                    <div>
+                        <h3>Interpretación</h3>
+                        <ul class="space-y-3">
+                            <li><b>Cuadros:</b> Posiciones (1, 2, 3).</li>
+                            <li><b>Vías:</b> Conexiones (P, T, A, B).</li>
+                            <li><b>Accionamiento:</b> Palanca, Solenoide, Muelle.</li>
+                        </ul>
+                        <div class="mt-4">
+                            <h3>Ejemplo 4/3</h3>
+                            <p>4 Vías, 3 Posiciones. Estándar en maquinaria móvil para control de cilindros doble efecto.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: PRESIÓN -->
+        <div class="slide" id="slide6">
+            <div class="control-panel">
+                <h2>Control de Presión</h2>
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <h3>Válvula de Alivio (Relief)</h3>
+                        <p>Protege el sistema. NC (Normalmente Cerrada). Se abre por sobrepresión.</p>
+                        
+                        <h3 class="mt-4">Válvula Reductora</h3>
+                        <p>Mantiene una presión secundaria constante. NA (Normalmente Abierta).</p>
+                        
+                        <h3 class="mt-4">Secuencia</h3>
+                        <p>Activa un actuador secundario solo al alcanzar presión.</p>
+                    </div>
+                    <div class="tech-img-container">
+                        <img src="1.webp" class="tech-img" alt="Válvulas Presión">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: CAUDAL -->
+        <div class="slide" id="slide7">
+            <div class="control-panel">
+                <h2>Control de Caudal</h2>
+                <div class="grid grid-cols-2 gap-8 items-center">
+                    <div class="tech-img-container">
+                        <img src="images (1).png" class="tech-img" alt="Control Caudal">
+                    </div>
+                    <div>
+                        <ul>
+                            <li><b>Estranguladora:</b> Restricción simple.</li>
+                            <li><b>Unidireccional:</b> Regula en un sentido, libre en el otro. Vital para velocidad de cilindros.</li>
+                            <li><b>Compensada:</b> Mantiene velocidad constante ante cambios de carga.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: ACCESORIOS -->
+        <div class="slide" id="slide8">
+            <div class="control-panel">
+                <h2>Accesorios Críticos</h2>
+                <p>Componentes vitales para la vida útil y monitoreo del equipo.</p>
+                <div class="tech-img-container mt-4" style="height: 400px;">
+                    <img src="simbologia.jpg" class="tech-img" alt="Accesorios">
+                </div>
+                <div class="grid grid-cols-3 gap-4 mt-4 text-center">
+                    <div class="bg-white/5 p-2 rounded"><b>Filtros:</b> Rombo</div>
+                    <div class="bg-white/5 p-2 rounded"><b>Enfriador:</b> Cuadrado</div>
+                    <div class="bg-white/5 p-2 rounded"><b>Acumulador:</b> Óvalo</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: INTERPRETACIÓN -->
+        <div class="slide" id="slide9">
+            <div class="control-panel">
+                <h2>Interpretación de Planos</h2>
+                <div class="grid grid-cols-2 gap-8">
+                    <div>
+                        <h3>Pasos para el Análisis</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-lg">
+                            <li><b>Fuente:</b> Ubicar Bomba y Tanque.</li>
+                            <li><b>Flujo:</b> Seguir línea P hasta las válvulas.</li>
+                            <li><b>Control:</b> ¿Qué válvulas intervienen?</li>
+                            <li><b>Trabajo:</b> ¿Qué hacen los actuadores?</li>
+                        </ol>
+                    </div>
+                    <div class="tech-img-container">
+                        <img src="images.png" class="tech-img" alt="Esquema Simple">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: ERRORES COMUNES -->
+        <div class="slide" id="slide10">
+            <div class="control-panel">
+                <h2><i class="fas fa-exclamation-triangle text-yellow-400"></i> Errores Comunes</h2>
+                <div class="grid grid-cols-2 gap-6 mt-6">
+                    <div class="bg-red-900/20 p-4 rounded border border-red-500/30">
+                        <h3>Confusión Bomba vs Motor</h3>
+                        <p>Flecha afuera = Bomba.<br>Flecha adentro = Motor.</p>
+                    </div>
+                    <div class="bg-red-900/20 p-4 rounded border border-red-500/30">
+                        <h3>Ignorar Pilotajes</h3>
+                        <p>Las líneas punteadas son el "cerebro". No las ignores.</p>
+                    </div>
+                    <div class="bg-red-900/20 p-4 rounded border border-red-500/30">
+                        <h3>Posición Normal</h3>
+                        <p>Analizar siempre desde la posición de reposo (resorte).</p>
+                    </div>
+                    <div class="bg-red-900/20 p-4 rounded border border-red-500/30">
+                        <h3>Válvulas Compensadas</h3>
+                        <p>Distinguir aguja simple de compensada por presión.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: CIERRE TÉCNICO -->
+        <div class="slide" id="slide11">
+            <div class="control-panel">
+                <h2>Conclusión Técnica</h2>
+                <ul class="space-y-4 text-lg">
+                    <li>La simbología no son dibujos, son instrucciones precisas.</li>
+                    <li>Un diagnóstico eficiente comienza en el plano, no en la llave.</li>
+                    <li>En <b>Talleres Lucas</b>, la excelencia técnica nos define.</li>
+                </ul>
+                <div class="mt-8 text-center">
+                    <h3 style="color: white;">Recursos</h3>
+                    <p>Norma ISO 1219 - Manuales de Fabricante</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: FINAL -->
+        <div class="slide" id="slide12">
+            <div class="control-panel text-center" style="justify-content: center;">
+                
+                <h1 class="fade-in-text" id="finalTitle" style="font-size: 4rem; margin-bottom: 40px;">¡Muchas Gracias!</h1>
+                
+                <div class="fade-in-text final-quote" id="finalQuote1">
+                    "Y recuerden, <b>Talleres Lucas</b>, su mejor opción en oleohidráulica..."
+                </div>
+
+                <div class="fade-in-text" id="finalQuote2" style="font-size: 1.5rem; margin-top: 20px; font-style: italic;">
+                    "...de la mano de <b>Don Alfonso y Don Jorge</b>,<br>el mejor taller oleohidráulico del norte de Chile."
+                </div>
+
+                <div class="fade-in-text" id="finalQuote3" style="font-size: 1.2rem; color: var(--lucas-yellow); margin-top: 20px; font-weight: 700;">
+                    Más de 60 años en la industria.
+                </div>
+
+                <div class="fade-in-text" id="finalPresenter" style="margin-top: 50px;">
+                    <p class="presenter-name">Wiljer Mamani Sejas</p>
+                    <p>Talleres Lucas - 2025</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="slide-number" id="slideNumber">1 / 12</div>
+
+    <button id="prevBtn" class="nav-btn" onclick="changeSlide(-1)">❮ ANTERIOR</button>
+    <button id="nextBtn" class="nav-btn" onclick="changeSlide(1)">SIGUIENTE ❯</button>
+
+    <script>
+        let currentSlide = 1;
+        const totalSlides = 12;
+
+        function changeSlide(direction) {
+            document.getElementById(`slide${currentSlide}`).classList.remove('active');
+            currentSlide += direction;
+            if (currentSlide < 1) currentSlide = 1;
+            if (currentSlide > totalSlides) currentSlide = totalSlides;
+            
+            document.getElementById(`slide${currentSlide}`).classList.add('active');
+            document.getElementById('slideNumber').innerText = `${currentSlide} / ${totalSlides}`;
+
+            if (currentSlide === 12) {
+                document.querySelectorAll('.fade-in-text').forEach(el => el.classList.remove('visible'));
+                setTimeout(() => { document.getElementById('finalTitle').classList.add('visible'); }, 500);
+                setTimeout(() => { document.getElementById('finalQuote1').classList.add('visible'); }, 2000);
+                setTimeout(() => { document.getElementById('finalQuote2').classList.add('visible'); }, 4000);
+                setTimeout(() => { document.getElementById('finalQuote3').classList.add('visible'); }, 6000);
+                setTimeout(() => { document.getElementById('finalPresenter').classList.add('visible'); }, 7500);
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') changeSlide(1);
+            if (e.key === 'ArrowLeft') changeSlide(-1);
+        });
+    </script>
+</body>
+</html>
